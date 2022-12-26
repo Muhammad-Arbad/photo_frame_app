@@ -7,43 +7,56 @@ class GlobalItems{
   List<CategoriesModel> categoriesList = [
     CategoriesModel(
         name: "Birthday",
-        imagePath: 'assets/categories/birthday.png',
-        bgColor: Colors.blue),
+        iconPath: 'assets/categories/icons/birthday.png',
+        bgColor: Colors.blue,
+      frameLocationName: "birthday"
+    ),
     CategoriesModel(
-        name: "Birthday",
-        imagePath: 'assets/categories/birthday.png',
-        bgColor: Colors.purple),
+        name: "Baby",
+        iconPath: 'assets/categories/icons/baby.png',
+        bgColor: Colors.purple,
+        frameLocationName: "baby"),
     CategoriesModel(
-        name: "Birthday",
-        imagePath: 'assets/categories/birthday.png',
-        bgColor: Colors.greenAccent),
+        name: "Anniversary",
+        iconPath: 'assets/categories/icons/anniversary.png',
+        bgColor: Colors.red,
+        // frameLocationName: "anniversary"
+        frameLocationName: "christmas"
+    ),
     CategoriesModel(
-        name: "Birthday",
-        imagePath: 'assets/categories/birthday.png',
-        bgColor: Colors.orange),
+        name: "Flower",
+        iconPath: 'assets/categories/icons/flower.png',
+        bgColor: Colors.orange,
+        frameLocationName: "flower"),
     CategoriesModel(
-        name: "Birthday",
-        imagePath: 'assets/categories/birthday.png',
-        bgColor: Colors.yellow),
+        name: "Love",
+        iconPath: 'assets/categories/icons/love.png',
+        bgColor: Colors.pink,
+        frameLocationName: "love"),
     CategoriesModel(
-        name: "Birthday",
-        imagePath: 'assets/categories/birthday.png',
-        bgColor: Colors.red),
+        name: "Night",
+        iconPath: 'assets/categories/icons/night.png',
+        bgColor: Colors.brown,
+        frameLocationName: "night"),
     CategoriesModel(
-        name: "Birthday",
-        imagePath: 'assets/categories/birthday.png',
-        bgColor: Colors.grey),
+        name: "Sunrise",
+        iconPath: 'assets/categories/icons/sunrise.png',
+        bgColor: Colors.orangeAccent,
+        frameLocationName: "sunrise"),
     CategoriesModel(
-        name: "Birthday",
-        imagePath: 'assets/categories/birthday.png',
-        bgColor: Colors.deepOrangeAccent),
+        name: "Garden",
+        iconPath: 'assets/categories/icons/garden.png',
+        bgColor: Colors.green,
+        frameLocationName: "garden"),
     CategoriesModel(
-        name: "Birthday",
-        imagePath: 'assets/categories/birthday.png',
-        bgColor: Colors.purple),
+        name: "Under Water",
+        iconPath: 'assets/categories/icons/under_water.png',
+        bgColor: Colors.blue,
+        frameLocationName: "underwater"),
     CategoriesModel(
-        name: "Birthday",
-        imagePath: 'assets/categories/birthday.png',
-        bgColor: Colors.purple)
+        name: "Waterfall",
+        iconPath: 'assets/categories/icons/waterfall.png',
+        bgColor: Colors.teal,
+        frameLocationName: "waterfall")
   ];
 }

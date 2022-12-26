@@ -21,13 +21,24 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   void initState() {
-    SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
+    //SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(
+          primarySwatch: Colors.lightBlue,
+          scrollbarTheme: ScrollbarThemeData(
+              //crossAxisMargin: -10,
+              isAlwaysShown: true,
+              thickness: MaterialStateProperty.all(3),
+              thumbColor: MaterialStateProperty.all(Colors.lightBlueAccent),
+              radius: const Radius.circular(10),
+              minThumbLength: 100
+          )
+      ),
       debugShowCheckedModeBanner: false,
       home: Container(
         decoration: BoxDecoration(

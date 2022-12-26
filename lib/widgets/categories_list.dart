@@ -4,27 +4,43 @@ import 'package:photo_frame/models/categoriesModel.dart';
 import 'package:photo_frame/views/category_page.dart';
 
 class CategoriesGrid extends StatelessWidget {
+  final scrollController = ScrollController(initialScrollOffset: 0);
   CategoriesGrid({Key? key}) : super(key: key);
+
+
 
   @override
   Widget build(BuildContext context) {
-    return GridView.count(
-      scrollDirection: Axis.horizontal,
-      crossAxisCount: 2,
-      crossAxisSpacing: 15,
-      mainAxisSpacing: 15,
-      children: List.generate(
-        GlobalItems().categoriesList.length,
-        (index) => singleCategory(GlobalItems().categoriesList[index], context),
+    return Scrollbar(
+      controller: scrollController,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 5),
+        child: GridView.count(
+          controller: scrollController,
+          scrollDirection: Axis.horizontal,
+          crossAxisCount: 2,
+          crossAxisSpacing: 15,
+          mainAxisSpacing: 15,
+          children: List.generate(
+            GlobalItems().categoriesList.length,
+            (index) => singleCategory(GlobalItems().categoriesList[index], context),
+          ),
+        ),
       ),
     );
   }
 
   Widget singleCategory(CategoriesModel categoriesList, BuildContext context) {
-    return GestureDetector(
+    return InkWell(
+      highlightColor: Colors.yellow.withOpacity(0.3),
+      splashColor: categoriesList.bgColor,
+
       onTap: () {
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => CategoryPage()));
+            context, MaterialPageRoute(builder: (context) => CategoryPage(frameLocationName:categoriesList.frameLocationName,
+        categoryName: categoriesList.name,
+          bgColor:categoriesList.bgColor
+        )));
       },
       child: Container(
         decoration: BoxDecoration(
@@ -38,7 +54,8 @@ class CategoriesGrid extends StatelessWidget {
               end: Alignment.bottomCenter,
               colors: <Color>[
                 categoriesList.bgColor,
-                categoriesList.bgColor.withOpacity(0.5)
+                // categoriesList.bgColor.withOpacity(0.5)
+                categoriesList.bgColor.withOpacity(0.8)
               ]),
         ),
         // color: Colors.amber,
@@ -47,7 +64,7 @@ class CategoriesGrid extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ImageIcon(
-              AssetImage(categoriesList.imagePath),
+              AssetImage(categoriesList.iconPath),
               size: 40,
               color: Colors.white,
             ),

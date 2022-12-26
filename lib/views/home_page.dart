@@ -13,6 +13,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -25,6 +26,7 @@ class _HomePageState extends State<HomePage> {
           height: MediaQuery.of(context).size.height*0.30,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
+            // child: CategoriesGrid(scrollController: scrollController),
             child: CategoriesGrid(),
           ),
         ),

@@ -4,24 +4,41 @@ import 'package:photo_frame/models/categoriesModel.dart';
 
 
 class SingleCatlog extends StatelessWidget {
-  const SingleCatlog({Key? key}) : super(key: key);
+
+  void Function(String) changeFramesCategory;
+  void Function(String) changeFramesCategoryName;
+  void Function(Color) changeAppBarColor;
+  SingleCatlog({Key? key, required this.changeFramesCategory,required this.changeFramesCategoryName,required this.changeAppBarColor}) : super(key: key);
+  final scrollController = ScrollController(initialScrollOffset: 0);
 
   @override
   Widget build(BuildContext context) {
-    return GridView.count(
-      scrollDirection: Axis.vertical,
-      crossAxisCount: 1,
-      mainAxisSpacing: 10,
-      children: List.generate(
-        GlobalItems().categoriesList.length,
-            (index) => singleCategory(GlobalItems().categoriesList[index], context),
+    return Scrollbar(
+      controller: scrollController,
+      child: Padding(
+        padding: const EdgeInsets.only(right: 10),
+        child: GridView.count(
+          controller: scrollController,
+          scrollDirection: Axis.vertical,
+          crossAxisCount: 1,
+          mainAxisSpacing: 10,
+          children: List.generate(
+            GlobalItems().categoriesList.length,
+                (index) => singleCategory(GlobalItems().categoriesList[index], context),
+          ),
+        ),
       ),
     );
   }
 
   Widget singleCategory(CategoriesModel categoriesList, BuildContext context) {
-    return GestureDetector(
+    return InkWell(
+      highlightColor: Colors.yellow.withOpacity(0.3),
+      splashColor: categoriesList.bgColor,
       onTap: () {
+        changeFramesCategory(categoriesList.frameLocationName);
+        changeFramesCategoryName(categoriesList.name);
+        changeAppBarColor(categoriesList.bgColor);
       },
       child: Container(
         decoration: BoxDecoration(
@@ -44,7 +61,7 @@ class SingleCatlog extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ImageIcon(
-              AssetImage(categoriesList.imagePath),
+              AssetImage(categoriesList.iconPath),
               size: 40,
               color: Colors.white,
             ),

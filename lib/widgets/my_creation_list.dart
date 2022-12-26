@@ -30,7 +30,7 @@ class MyCreationGrid extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           ImageIcon(
-            AssetImage(categoriesList.imagePath),
+            AssetImage(categoriesList.iconPath),
             size: 40,
             color: Colors.blue,
           ),
