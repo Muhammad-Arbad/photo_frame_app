@@ -12,16 +12,15 @@ class GlobalItems{
       frameLocationName: "birthday"
     ),
     CategoriesModel(
-        name: "Baby",
-        iconPath: 'assets/categories/icons/baby.png',
+        name: "Christmas",
+        iconPath: 'assets/categories/icons/christmas.png',
         bgColor: Colors.purple,
-        frameLocationName: "baby"),
+        frameLocationName: "christmas"),
     CategoriesModel(
         name: "Anniversary",
         iconPath: 'assets/categories/icons/anniversary.png',
         bgColor: Colors.red,
-        // frameLocationName: "anniversary"
-        frameLocationName: "christmas"
+        frameLocationName: "anniversary"
     ),
     CategoriesModel(
         name: "Flower",

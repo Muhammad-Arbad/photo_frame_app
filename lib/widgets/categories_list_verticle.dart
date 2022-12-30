@@ -8,7 +8,8 @@ class SingleCatlog extends StatelessWidget {
   void Function(String) changeFramesCategory;
   void Function(String) changeFramesCategoryName;
   void Function(Color) changeAppBarColor;
-  SingleCatlog({Key? key, required this.changeFramesCategory,required this.changeFramesCategoryName,required this.changeAppBarColor}) : super(key: key);
+  void Function(String) changeIcon;
+  SingleCatlog({Key? key, required this.changeFramesCategory,required this.changeFramesCategoryName,required this.changeAppBarColor,required this.changeIcon}) : super(key: key);
   final scrollController = ScrollController(initialScrollOffset: 0);
 
   @override
@@ -39,6 +40,7 @@ class SingleCatlog extends StatelessWidget {
         changeFramesCategory(categoriesList.frameLocationName);
         changeFramesCategoryName(categoriesList.name);
         changeAppBarColor(categoriesList.bgColor);
+        changeIcon(categoriesList.iconPath);
       },
       child: Container(
         decoration: BoxDecoration(

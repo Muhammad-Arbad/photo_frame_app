@@ -31,11 +31,11 @@ class _MoveableWidgetState extends State<MoveableWidget> {
       },
       child: MatrixGestureDetector(
         onScaleEnd: (){
-          print("On Scale End is Called");
+          // print("On Scale End is Called");
           widget.onScaleEnd(offset);
         },
         onScaleStart: (){
-          print("On Scale Start is Called");
+          // print("On Scale Start is Called");
           widget.onScaleStart();
         },
         onMatrixUpdate: (m, tm, sm, rm) {

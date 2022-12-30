@@ -4,6 +4,9 @@ import 'package:photo_frame/models/categoriesModel.dart';
 import 'package:photo_frame/views/category_page.dart';
 
 class CategoriesGrid extends StatelessWidget {
+
+
+
   final scrollController = ScrollController(initialScrollOffset: 0);
   CategoriesGrid({Key? key}) : super(key: key);
 
@@ -39,7 +42,8 @@ class CategoriesGrid extends StatelessWidget {
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => CategoryPage(frameLocationName:categoriesList.frameLocationName,
         categoryName: categoriesList.name,
-          bgColor:categoriesList.bgColor
+          bgColor:categoriesList.bgColor,
+          icon: categoriesList.iconPath,
         )));
       },
       child: Container(

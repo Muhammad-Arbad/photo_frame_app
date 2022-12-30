@@ -28,7 +28,9 @@ class _SingleFrameState extends State<SingleFrame> {
   final ValueNotifier<Matrix4> notifier = ValueNotifier(Matrix4.identity());
 
   List<String> frames = [];
+  List<String> fontsInTextEditor = [];
   List<String> stickersList = [];
+
   XFile? selectedImage;
   File? imgFile;
   final ImagePicker picker = ImagePicker();
@@ -48,6 +50,7 @@ class _SingleFrameState extends State<SingleFrame> {
 
     super.initState();
 
+    loadFonts();
     loadFrames();
     loadStickers();
   }
@@ -100,7 +103,7 @@ class _SingleFrameState extends State<SingleFrame> {
                           setState(() {
                             showDeleteButton = false;
                           });
-                          print("From Previous End");
+                          // print("From Previous End");
 
                           if (offset.dy >
                               (MediaQuery.of(context).size.height - 120)) {
@@ -114,7 +117,7 @@ class _SingleFrameState extends State<SingleFrame> {
                           setState(() {
                             showDeleteButton = true;
                           });
-                          print("From Previous Start");
+                          // print("From Previous Start");
                         },
                         onDragUpdate: (offset) {
                           if (offset.dy >
@@ -156,8 +159,8 @@ class _SingleFrameState extends State<SingleFrame> {
                       alignment: Alignment.bottomCenter,
                       child: Icon(
                         Icons.delete,
-                        color: isDeleteButtonActive ? Colors.red : Colors.grey,
-                        size: isDeleteButtonActive ? 30 : 20,
+                        color: isDeleteButtonActive ? Colors.red : Colors.black,
+                        size: isDeleteButtonActive ? 60 : 50,
                       ),
                     )
                 ],
@@ -185,11 +188,12 @@ class _SingleFrameState extends State<SingleFrame> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.filter_frames_outlined, color:
-                    showFrameGrid?Colors.blue:Colors.black),
+                    Icon(Icons.filter_frames_outlined,
+                        color: showFrameGrid ? Colors.blue : Colors.black),
                     Text(
                       "Frames",
-                      style: TextStyle(color: showFrameGrid?Colors.blue:Colors.black),
+                      style: TextStyle(
+                          color: showFrameGrid ? Colors.blue : Colors.black),
                     )
                   ],
                 ),
@@ -237,10 +241,11 @@ class _SingleFrameState extends State<SingleFrame> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.add_circle_outline,
-                        color: showStickerGrid?Colors.blue:Colors.black),
+                        color: showStickerGrid ? Colors.blue : Colors.black),
                     Text(
                       "Sticker",
-                      style: TextStyle(color: showStickerGrid?Colors.blue:Colors.black),
+                      style: TextStyle(
+                          color: showStickerGrid ? Colors.blue : Colors.black),
                     )
                   ],
                 ),
@@ -264,10 +269,11 @@ class _SingleFrameState extends State<SingleFrame> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.text_rotation_angleup_sharp,
-                        color: showTextField?Colors.blue:Colors.black),
+                        color: showTextField ? Colors.blue : Colors.black),
                     Text(
                       "Text",
-                      style: TextStyle(color: showTextField?Colors.blue:Colors.black),
+                      style: TextStyle(
+                          color: showTextField ? Colors.blue : Colors.black),
                     )
                   ],
                 ),
@@ -303,9 +309,9 @@ class _SingleFrameState extends State<SingleFrame> {
     );
   }
 
-
   Future getImage(ImageSource media) async {
     var img = await picker.pickImage(source: media);
+    // print("Img Path"+img!.path);
 
     setState(() {
       selectedImage = img;
@@ -322,19 +328,22 @@ class _SingleFrameState extends State<SingleFrame> {
     final Uint8List pngBytes = byteData!.buffer.asUint8List();
 
     //create file
+//PAth/data/user/0/com.example.photo_frame/cache/baby2022-12-28 17:48:14.144455.png
     final String dir = (await getApplicationDocumentsDirectory()).path;
-    final String fullPath = '$dir/${DateTime.now().millisecond}.png';
+    final String fullPath =
+        '$dir/' + widget.frameLocationName + '${DateTime.now()}.png';
+    print(dir);
     File capturedFile = File(fullPath);
     await capturedFile.writeAsBytes(pngBytes);
-    print(capturedFile.path);
+    print("Captured Path" + capturedFile.path);
 
-    await GallerySaver.saveImage(capturedFile.path, albumName: "Birthday")
+    await GallerySaver.saveImage(capturedFile.path,
+            albumName: widget.frameLocationName, toDcim: true)
+        //await GallerySaver.saveImage(capturedFile.path)
         .then((value) {
-      print(value);
       if (value == true) {
         Fluttertoast.showToast(
-            msg: "Image saved Successfully",
-            backgroundColor: Colors.lightGreen);
+            msg: "Image saved Successfully", backgroundColor: Colors.green);
       } else {
         Fluttertoast.showToast(
             msg: "Failed to save", backgroundColor: Colors.red);
@@ -351,7 +360,7 @@ class _SingleFrameState extends State<SingleFrame> {
           StickersList: stickersList,
           addStickerToScreen: (imgName) {
             setState(() {
-              print(imgName);
+              // print(imgName);
               moveableWidgetsOnImage.add(Image.asset(imgName));
             });
           }),
@@ -362,12 +371,31 @@ class _SingleFrameState extends State<SingleFrame> {
     return Container(
       padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-          color: Colors.deepPurple.withOpacity(0.9),
-          borderRadius: BorderRadius.only(
-              topRight: Radius.circular(30), topLeft: Radius.circular(30))),
+        color: Colors.deepPurple.withOpacity(0.9),
+        borderRadius: BorderRadius.only(
+          topRight: Radius.circular(30),
+          topLeft: Radius.circular(30),
+        ),
+      ),
       height: MediaQuery.of(context).size.height / 2,
       child: TextEditor(
-        fonts: ['1', '2', '3', '4', '5', '6', '7', '8'],
+        fonts: [
+          '1',
+          '2',
+          '3',
+          '4',
+          '5',
+          '6',
+          '7',
+          '8',
+          '9',
+          '10',
+          '11',
+          '12',
+          '13'
+        ],
+        maxFontSize: 50,
+        textStyle: TextStyle(fontSize: 25),
         decoration: EditorDecoration(
           doneButton: Container(
             decoration:
@@ -394,14 +422,16 @@ class _SingleFrameState extends State<SingleFrame> {
   selectFramesForScreen(String frameLocationName, List<String> frames) {
     return Container(
       padding: EdgeInsets.only(bottom: 5, top: 5),
-      height: MediaQuery.of(context).size.height * 0.15,
+      height: MediaQuery.of(context).size.height * 0.18,
       color: Colors.black,
-      child: FramesGrid(frameLocationName: frameLocationName, frames: frames,
-      changeFrame: (frameName){
-        setState(() {
-          widget.imageNames = frameName;
-        });
-      },
+      child: FramesGrid(
+        frameLocationName: frameLocationName,
+        frames: frames,
+        changeFrame: (frameName) {
+          setState(() {
+            widget.imageNames = frameName;
+          });
+        },
       ),
     );
   }
@@ -410,11 +440,11 @@ class _SingleFrameState extends State<SingleFrame> {
     final manifestContent = await rootBundle.loadString('AssetManifest.json');
     final Map<String, dynamic> manifestMap = json.decode(manifestContent);
 
-    final imagePaths = manifestMap.keys
+    final framesPath = manifestMap.keys
         .where((String key) => key.contains(
             'assets/categories/frames/' + widget.frameLocationName + '/'))
         .toList();
-    frames = imagePaths;
+    frames = framesPath;
   }
 
   void loadStickers() async {
@@ -425,6 +455,18 @@ class _SingleFrameState extends State<SingleFrame> {
         .where((String key) => key.contains('assets/stickers/'))
         .toList();
     stickersList = stickersPath;
+  }
+
+  void loadFonts() async {
+    final manifestContent = await rootBundle.loadString('AssetManifest.json');
+    final Map<String, dynamic> manifestMap = json.decode(manifestContent);
+
+    final fontsPath = manifestMap.keys
+        .where((String key) => key.contains('assets/fonts'))
+        .toList();
+    fontsInTextEditor = fontsPath;
+
+    // print("Number of Fonts = "+fontsInTextEditor.length.toString());
   }
 
   Future<bool> backButtonPress() async {
@@ -448,7 +490,11 @@ class FramesGrid extends StatefulWidget {
   List<String> frames;
   void Function(String) changeFrame;
 
-  FramesGrid({Key? key, required this.frameLocationName, required this.frames,required this.changeFrame})
+  FramesGrid(
+      {Key? key,
+      required this.frameLocationName,
+      required this.frames,
+      required this.changeFrame})
       : super(key: key);
 
   @override
@@ -462,6 +508,7 @@ class _FramesGridState extends State<FramesGrid> {
       scrollDirection: Axis.horizontal,
       crossAxisCount: 1,
       mainAxisSpacing: 5,
+      childAspectRatio: 1.5,
       //crossAxisSpacing: 10,
       children: List.generate(
         widget.frames.length,
@@ -476,8 +523,6 @@ class _FramesGridState extends State<FramesGrid> {
         widget.changeFrame(imageNames);
       },
       child: Container(
-        height: double.infinity,
-        width: double.infinity,
         color: Colors.white,
         child: Image(
           image: AssetImage(imageNames),

@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:photo_frame/ad_mobs_service/ad_mob_service.dart';
 import 'package:photo_frame/views/single_frame.dart';
 import 'package:photo_frame/widgets/categories_list_verticle.dart';
 
@@ -9,9 +11,11 @@ class CategoryPage extends StatefulWidget {
   String frameLocationName;
   String categoryName;
   Color bgColor;
+  String icon;
+  BannerAd? bannerAd;
 
   CategoryPage(
-      {Key? key, required this.frameLocationName, required this.categoryName,required this.bgColor})
+      {Key? key, required this.frameLocationName, required this.categoryName,required this.bgColor,required this.icon})
       : super(key: key);
 
   @override
@@ -21,24 +25,38 @@ class CategoryPage extends StatefulWidget {
 class _CategoryPageState extends State<CategoryPage> {
   List<String> imageNames = [];
 
+
   @override
   void initState() {
+    _createBannerAd();
     loadFrames();
     // TODO: implement initState
     super.initState();
   }
 
+
+  void _createBannerAd() {
+    widget.bannerAd = BannerAd(
+        size: AdSize.fullBanner,
+        adUnitId: AdMobService.bannerAdUnitId.toString(),
+        listener: AdMobService.bannerAdListener,
+        request: const AdRequest())
+      ..load();
+
+
+  }
+
   void loadFrames() async {
     final manifestContent = await rootBundle.loadString('AssetManifest.json');
     final Map<String, dynamic> manifestMap = json.decode(manifestContent);
-    log(json.decode(manifestContent).toString());
+    // log(json.decode(manifestContent).toString());
     final imagePaths = manifestMap.keys
         .where((String key) => key.contains(
             'assets/categories/frames/' + widget.frameLocationName + '/'))
         .toList();
     imageNames = imagePaths;
     setState(() {});
-    print("Getting Length = " + imageNames.length.toString());
+    // print("Getting Length = " + imageNames.length.toString());
   }
 
   @override
@@ -47,7 +65,16 @@ class _CategoryPageState extends State<CategoryPage> {
       appBar: AppBar(
         backgroundColor: widget.bgColor.withOpacity(0.6),
         centerTitle: true,
-        title: Text(widget.categoryName),
+        title: Row(
+          children: [
+            Expanded(child: Text(widget.categoryName,style: TextStyle(fontFamily: "13",fontSize: 25)),),
+            Expanded(child: ImageIcon(
+              AssetImage(widget.icon),
+              size: 40,
+              color: Colors.black,
+            ),)
+          ],
+        ),
       ),
       body: Row(
         children: [
@@ -55,7 +82,9 @@ class _CategoryPageState extends State<CategoryPage> {
             flex: 1,
             child: Padding(
               padding:  EdgeInsets.all(8.0),
-              child: SingleCatlog(changeFramesCategory: (frameLocationName){
+              child: SingleCatlog(
+                changeIcon: (iconPath){widget.icon = iconPath;},
+                changeFramesCategory: (frameLocationName){
                 widget.frameLocationName = frameLocationName;
                 loadFrames();
               },changeFramesCategoryName: (framesCategoryName){
@@ -78,6 +107,13 @@ class _CategoryPageState extends State<CategoryPage> {
           ),
         ],
       ),
+      bottomNavigationBar: widget.bannerAd == null
+          ? null
+          : Container(
+        //margin: const EdgeInsets.only(bottom: 12),
+        height:60,
+        child: AdWidget(ad: widget.bannerAd!),
+      ),
     );
   }
 }
@@ -96,12 +132,17 @@ class FramesGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    print("");
+    // print("");
     return Scrollbar(
       controller: scrollController,
-      child: Padding(
+      child:
+      Padding(
         padding: const EdgeInsets.only(right: 10),
-        child:imageNames.length!=0? GridView.count(
+        child:
+
+        imageNames.length!=0?
+        GridView.count(
+          childAspectRatio: 0.6,
           controller: scrollController,
           scrollDirection: Axis.vertical,
           crossAxisCount: 2,
@@ -129,13 +170,21 @@ class FramesGrid extends StatelessWidget {
                     imageNames: imageNames,
                     frameLocationName: frameLocationName)));
       },
+      // child: Image.asset(
+      //     imageNames,
+      //     //scale: 1.0,
+      //   fit: BoxFit.fitHeight,
+      // ),
+
+
       child: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-              image: AssetImage(imageNames),
-              // fit: BoxFit.cover
-              fit: BoxFit.cover),
-        ),
+        child: Image(image: AssetImage(imageNames),fit: BoxFit.fitHeight,),
+        // decoration: BoxDecoration(
+        //   image: DecorationImage(
+        //       image: AssetImage(imageNames),
+        //       // fit: BoxFit.cover
+        //       fit: BoxFit.cover),
+        // ),
       ),
     );
   }

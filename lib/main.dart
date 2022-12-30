@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:photo_frame/views/home_page.dart';
-import 'package:photo_frame/widgets/categories_list.dart';
-import 'package:photo_frame/widgets/custom_appbar.dart';
-import 'package:photo_frame/widgets/my_creation_list.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:photo_frame/views/splash_screen.dart';
 
-import 'widgets/divider.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitDown,
+    DeviceOrientation.portraitUp
+  ]);
   runApp(const MyApp());
 }
 
@@ -29,6 +32,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
+        fontFamily:"12",
           primarySwatch: Colors.lightBlue,
           scrollbarTheme: ScrollbarThemeData(
               //crossAxisMargin: -10,
@@ -40,34 +44,46 @@ class _MyAppState extends State<MyApp> {
           )
       ),
       debugShowCheckedModeBanner: false,
-      home: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assets/bg3.jpg"),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          appBar: AppBar(
-            actions: [
-              TextButton(
-                  onPressed: () {},
-                  style: ButtonStyle(
-                    foregroundColor: MaterialStateProperty.all(Colors.white),
-                  ),
-                  child: Row(
-                    children: [Text("Start"), Icon(Icons.arrow_forward_sharp)],
-                  ))
-            ],
-            backgroundColor: Colors.transparent,
-            elevation: 0.0,
-            title: Text("Photo Frames"),
-            flexibleSpace: Custom_AppBar(),
-          ),
-          body: HomePage(),
-        ),
-      ),
+      //home: HomePage()
+      home: SplashScreen()
+
+
+      // Container(
+      //   decoration: BoxDecoration(
+      //     image: DecorationImage(
+      //       image: AssetImage("assets/bg3.jpg"),
+      //       fit: BoxFit.cover,
+      //     ),
+      //   ),
+      //   child: Scaffold(
+      //     backgroundColor: Colors.transparent,
+      //     appBar: AppBar(
+      //       centerTitle: true,
+      //       // actions: [
+      //       //   TextButton(
+      //       //       onPressed: () {
+      //       //         // Navigator.push(
+      //       //         //     context, MaterialPageRoute(builder: (context) => CategoryPage(frameLocationName:GlobalItems().categoriesList.first.frameLocationName,
+      //       //         //     categoryName: GlobalItems().categoriesList.first.name,
+      //       //         //     bgColor:GlobalItems().categoriesList.first.bgColor
+      //       //         // )));
+      //       //       },
+      //       //       style: ButtonStyle(
+      //       //         foregroundColor: MaterialStateProperty.all(Colors.white),
+      //       //       ),
+      //       //       child: Row(
+      //       //         children: [Text("Start"), Icon(Icons.arrow_forward_sharp)],
+      //       //       ))
+      //       // ],
+      //       backgroundColor: Colors.transparent,
+      //       elevation: 0.0,
+      //       title: Text("Photo Frames"),
+      //       flexibleSpace: Custom_AppBar(),
+      //     ),
+      //      body: HomePage(),
+      //     //body: SplashScreen(),
+      //   ),
+      // ),
     );
   }
 }
