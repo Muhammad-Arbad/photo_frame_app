@@ -1,10 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:photo_frame/global_items/global_items.dart';
 import 'package:photo_frame/models/categoriesModel.dart';
 
 
 class SingleCatlog extends StatelessWidget {
-
   void Function(String) changeFramesCategory;
   void Function(String) changeFramesCategoryName;
   void Function(Color) changeAppBarColor;
@@ -33,14 +34,18 @@ class SingleCatlog extends StatelessWidget {
   }
 
   Widget singleCategory(CategoriesModel categoriesList, BuildContext context) {
+
     return InkWell(
       highlightColor: Colors.yellow.withOpacity(0.3),
       splashColor: categoriesList.bgColor,
       onTap: () {
+
         changeFramesCategory(categoriesList.frameLocationName);
         changeFramesCategoryName(categoriesList.name);
         changeAppBarColor(categoriesList.bgColor);
         changeIcon(categoriesList.iconPath);
+
+
       },
       child: Container(
         decoration: BoxDecoration(

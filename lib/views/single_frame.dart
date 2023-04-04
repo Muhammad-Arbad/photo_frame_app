@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/services.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:async';
 import 'dart:ui' as ui;
@@ -10,14 +13,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:photo_frame/models/frame_detail_model.dart';
 import 'package:photo_frame/widgets/moveable_widget.dart';
 import 'package:text_editor/text_editor.dart';
 
-class SingleFrame extends StatefulWidget {
-  String imageNames, frameLocationName;
+import '../ad_mobs_service/ad_mob_service.dart';
 
+
+List<ImgDetails> framesDetails = [];
+Map<int, bool> isDownloading = {};
+
+class SingleFrame extends StatefulWidget {
+  String imageNames, frameLocationName,frameLocationType;
+      // pathOfSeletedFrame;
+  ImgDetails singleFrameDetails;
+  List<ImgDetails> framesDetailss;
   SingleFrame(
-      {Key? key, required this.imageNames, required this.frameLocationName})
+      {Key? key, required this.imageNames, required this.frameLocationName,required this.frameLocationType,required this.singleFrameDetails,
+        // required this.pathOfSeletedFrame,
+        required this.framesDetailss})
       : super(key: key);
 
   @override
@@ -25,6 +39,7 @@ class SingleFrame extends StatefulWidget {
 }
 
 class _SingleFrameState extends State<SingleFrame> {
+
   final ValueNotifier<Matrix4> notifier = ValueNotifier(Matrix4.identity());
 
   List<String> frames = [];
@@ -50,6 +65,8 @@ class _SingleFrameState extends State<SingleFrame> {
 
     super.initState();
 
+    framesDetails  = widget.framesDetailss;
+
     loadFonts();
     loadFrames();
     loadStickers();
@@ -70,7 +87,8 @@ class _SingleFrameState extends State<SingleFrame> {
           child: SizedBox(
             width: double.infinity,
             height: MediaQuery.of(context).size.height * 80,
-            child: RepaintBoundary(
+            child:
+            RepaintBoundary(
               key: _globalKey,
               child: Stack(
                 alignment: Alignment.center,
@@ -88,9 +106,16 @@ class _SingleFrameState extends State<SingleFrame> {
                   IgnorePointer(
                     child: Container(
                       decoration: BoxDecoration(
-                        image: DecorationImage(
+                        image:
+                        // widget.frameLocationType == "assets"?
+                        widget.singleFrameDetails.category == "assets"?
+                        DecorationImage(
                           fit: BoxFit.cover,
-                          image: AssetImage(widget.imageNames),
+                          // image: AssetImage(widget.imageNames),
+                          image: AssetImage(widget.singleFrameDetails.path),
+                        ):DecorationImage(
+                          fit: BoxFit.cover,
+                          image: FileImage(File(widget.singleFrameDetails.path)),
                         ),
                       ),
                     ),
@@ -145,7 +170,7 @@ class _SingleFrameState extends State<SingleFrame> {
                       ? Container(
                           alignment: Alignment.bottomCenter,
                           child: selectFramesForScreen(
-                              widget.frameLocationName, frames),
+                              widget.frameLocationName, frames,framesDetails),
                         )
                       : IgnorePointer(),
                   showStickerGrid
@@ -291,7 +316,8 @@ class _SingleFrameState extends State<SingleFrame> {
                   _capturePng(context);
                 },
                 //color: Colors.red,
-                child: Column(
+                child:
+                Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.save_alt_outlined, color: Colors.black),
@@ -331,7 +357,7 @@ class _SingleFrameState extends State<SingleFrame> {
 //PAth/data/user/0/com.example.photo_frame/cache/baby2022-12-28 17:48:14.144455.png
     final String dir = (await getApplicationDocumentsDirectory()).path;
     final String fullPath =
-        '$dir/' + widget.frameLocationName + '${DateTime.now()}.png';
+        '$dir/' + widget.frameLocationName + 'mystuff'+ '${DateTime.now()}.png';
     print(dir);
     File capturedFile = File(fullPath);
     await capturedFile.writeAsBytes(pngBytes);
@@ -419,7 +445,7 @@ class _SingleFrameState extends State<SingleFrame> {
     );
   }
 
-  selectFramesForScreen(String frameLocationName, List<String> frames) {
+  selectFramesForScreen(String frameLocationName, List<String> frames, frameDetails) {
     return Container(
       padding: EdgeInsets.only(bottom: 5, top: 5),
       height: MediaQuery.of(context).size.height * 0.18,
@@ -427,11 +453,19 @@ class _SingleFrameState extends State<SingleFrame> {
       child: FramesGrid(
         frameLocationName: frameLocationName,
         frames: frames,
-        changeFrame: (frameName) {
+        changeFrame: (frameDetail) {
           setState(() {
-            widget.imageNames = frameName;
+            // widget.imageNames = frameName;
+
+
+            widget.singleFrameDetails = frameDetail;
+
+
+
+
           });
         },
+        frameDetails:frameDetails
       ),
     );
   }
@@ -488,13 +522,17 @@ class _SingleFrameState extends State<SingleFrame> {
 class FramesGrid extends StatefulWidget {
   String frameLocationName;
   List<String> frames;
-  void Function(String) changeFrame;
+  // void Function(String) changeFrame;
+  void Function(ImgDetails) changeFrame;
+  List<ImgDetails> frameDetails;
+
 
   FramesGrid(
       {Key? key,
       required this.frameLocationName,
       required this.frames,
-      required this.changeFrame})
+      required this.changeFrame,
+      required this.frameDetails})
       : super(key: key);
 
   @override
@@ -502,6 +540,17 @@ class FramesGrid extends StatefulWidget {
 }
 
 class _FramesGridState extends State<FramesGrid> {
+  RewardedAd? rewardedAd;
+  bool isRewardedAdLoaded = false;
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _createRewardedAd();
+  }
+
   @override
   Widget build(BuildContext context) {
     return GridView.count(
@@ -511,21 +560,104 @@ class _FramesGridState extends State<FramesGrid> {
       childAspectRatio: 1.5,
       //crossAxisSpacing: 10,
       children: List.generate(
-        widget.frames.length,
-        (index) => singleFrame(context, widget.frames[index]),
+        // widget.frames.length,
+        widget.frameDetails.length,
+        (index) => singleFrame(context,
+            // widget.frames[index],
+            index,
+            widget.frameDetails[index]),
       ),
     );
   }
 
-  Widget singleFrame(BuildContext context, imageNames) {
-    return GestureDetector(
-      onTap: () {
-        widget.changeFrame(imageNames);
+  Widget singleFrame(BuildContext context,
+      // imageNames,
+      index,
+      ImgDetails frameDetail) {
+
+    if (isDownloading[index] == null) {
+      isDownloading[index] = false;
+    }
+
+    return
+      isDownloading[index]!
+          ? Center(child: CircularProgressIndicator(color: Colors.blue)):
+      GestureDetector(
+      onTap: ()async {
+        if (frameDetail.category == 'cloud'){
+          if(index % 2 ==1){
+
+            showDialog(context: context, builder: (BuildContext context){
+              return AlertDialog(
+                title: Text("Would you like to unlock frame ? "),
+                actions: [
+                  TextButton(onPressed: (){Navigator.pop(context);}, child:Text("No")),
+                  TextButton(onPressed: ()async{
+                    Navigator.pop(context);
+                    if(await _showRewardedAd()){
+
+                    widget.changeFrame(await downloadSingleFrame(index,frameDetail.frameName));
+
+
+                    }else{
+                      widget.changeFrame(await downloadSingleFrame(index,frameDetail.frameName));
+                    }
+                  }, child:Text("Watch Ad")),
+                ],
+              );
+            });
+
+
+
+
+
+          }else {
+            widget.changeFrame(await downloadSingleFrame(index,frameDetail.frameName));
+          }
+        }
+        else{
+          widget.changeFrame(frameDetail);
+        }
+        // widget.changeFrame(imageNames);
+        // widget.changeFrame(frameDetail.path);
+
       },
       child: Container(
         color: Colors.white,
-        child: Image(
-          image: AssetImage(imageNames),
+        child:
+        // widget.frameDetails.category == "assets"?
+        frameDetail.category == "assets"?
+        Image(
+          // image: AssetImage(imageNames),
+          image: AssetImage(frameDetail.path),
+        ):
+        frameDetail.category != "cloud"?
+        Image(
+          image: FileImage(File(frameDetail.path)),
+        ):Stack(
+          children: [
+            Positioned.fill(
+              child: Image(
+                fit: BoxFit.cover,
+                image: NetworkImage(frameDetail.path),
+              ),
+            ),
+            Positioned(
+              top: 5,
+              right: 5,
+              child: Container(
+                padding: EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius:
+                    BorderRadius.all(Radius.circular(30))),
+                child: Icon(
+                  index % 2 == 0 ? Icons.download : Icons.lock,
+                  color: Colors.red,
+                ),
+              ),
+            ),
+          ],
         ),
         // decoration: BoxDecoration(
         //   color: Colors.white,
@@ -537,6 +669,117 @@ class _FramesGridState extends State<FramesGrid> {
       ),
     );
   }
+
+
+  downloadSingleFrame(int index,frameName) async {
+
+    setState((){
+      isDownloading[index] = true;
+    });
+
+    print("Frame Downloading Function");
+    log(index.toString());
+    log(widget.frameDetails.length.toString());
+    String namePrefix = widget.frameLocationName + "%2F";
+
+    // setState(() {
+    //   widget.isDownloading[index] = true;
+    // });
+
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/$namePrefix${frameName}');
+
+    await FirebaseStorage.instance
+        .ref('frames/${widget.frameLocationName}')
+        .child(frameName)
+        .writeToFile(file);
+
+    // widget.changeFrame(ImgDetails(path: file.path, category: "local", frameName: frameName));
+    // setState(() {
+    //
+    // });
+
+    // widget.frameDetails.removeAt(index);
+    framesDetails.removeAt(index);
+    // setState(() {
+    //
+    // });
+    // widget.frameDetails.insert(index, ImgDetails(path: file.path, category: "local", frameName: frameName));
+    framesDetails.insert(index, ImgDetails(path: file.path, category: "local", frameName: frameName));
+
+    isRewardedAdLoaded = false;
+
+    setState((){
+      isDownloading[index] = false;
+    });
+
+    return widget.frameDetails[index];
+
+
+    // setState(() {
+    //   widget.isDownloading[index] = false;
+    // });
+  }
+
+  Future<void> _createRewardedAd() async {
+    isRewardedAdLoaded = false;
+
+    RewardedAd.loadWithAdManagerAdRequest(
+      adUnitId: AdMobService.rewardedAdUnitId,
+      adManagerRequest: const AdManagerAdRequest(),
+      // adManagerAdRequest: AdManagerAdRequest(),
+      rewardedAdLoadCallback: RewardedAdLoadCallback(
+        onAdLoaded: (RewardedAd ad) {
+          isRewardedAdLoaded = true;
+          print('$ad loaded.');
+          rewardedAd = ad;
+
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+          print('RewardedAd failed to load: $error');
+        },
+      ),
+    );
+  }
+
+  Future<bool> _showRewardedAd() async {
+    if (rewardedAd == null) {
+      print('Warning: attempt to show rewarded before loaded.');
+      return await false;
+    }
+    rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (RewardedAd ad) {
+        print('ad onAdShowedFullScreenContent.');
+        // log("1");
+
+      },
+      onAdDismissedFullScreenContent: (RewardedAd ad) {
+        print('$ad onAdDismissedFullScreenContent.');
+        ad.dispose();
+        _createRewardedAd();
+        // log("2");
+
+      },
+      onAdFailedToShowFullScreenContent: (RewardedAd ad, AdError error) {
+        print('$ad onAdFailedToShowFullScreenContent: $error');
+        ad.dispose();
+        // _createRewardedAd();
+        // log("3");
+
+      },
+      onAdImpression: (RewardedAd ad) => print('$ad impression occurred.'),
+    );
+
+    // _rewardedAd!.setImmersiveMode(true);
+    rewardedAd!.show(onUserEarnedReward: (AdWithoutView ad, RewardItem reward){
+      print("Inside Show Functions");
+      print('$ad with reward $RewardItem(${reward.amount}, ${reward.type})');
+
+    });
+
+    return  await true;
+  }
+
 }
 
 class StickersGrid extends StatefulWidget {
@@ -582,4 +825,7 @@ class _StickersGridState extends State<StickersGrid> {
       ),
     );
   }
+
+
+
 }

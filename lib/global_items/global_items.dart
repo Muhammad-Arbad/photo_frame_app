@@ -9,7 +9,7 @@ class GlobalItems{
         name: "Birthday",
         iconPath: 'assets/categories/icons/birthday.png',
         bgColor: Colors.blue,
-      frameLocationName: "birthday"
+        frameLocationName: "birthday"
     ),
     CategoriesModel(
         name: "Christmas",

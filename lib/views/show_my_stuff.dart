@@ -69,7 +69,7 @@ class _MyStuffState extends State<MyStuff> {
 
     io.Directory("$dir").listSync()
         .forEach((element) {
-          if(element.path.contains(widget.frameLocationName)){
+          if(element.path.contains(widget.frameLocationName+"mystuff")){
             // print(element.path);
             imageNames.add(element.path);
           };

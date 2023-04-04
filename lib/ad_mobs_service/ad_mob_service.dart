@@ -42,7 +42,11 @@ class AdMobService{
 
   static String get rewardedAdUnitId {
     if (Platform.isAndroid) {
-      return '<YOUR_ANDROID_REWARDED_AD_UNIT_ID>';
+      // return 'ca-app-pub-3940256099942544/5224354917';
+      // return 'ca-app-pub-6943929536423717/6729180401';
+      return 'ca-app-pub-3398262524144530/3924220953';
+      // return 'ca-app-pub-3940256099942544/6300978111';
+      // return 'ca-app-pub-3940256099942544/5354046379';
     } else if (Platform.isIOS) {
       return '<YOUR_IOS_REWARDED_AD_UNIT_ID>';
     } else {
