@@ -47,6 +47,13 @@ class _CategoryPageState extends State<CategoryPage> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    log("Dispose calling");
+  }
+
   void _createBannerAd() {
     widget.bannerAd = BannerAd(
         size: AdSize.fullBanner,
@@ -56,7 +63,17 @@ class _CategoryPageState extends State<CategoryPage> {
       ..load();
   }
 
+
   void loadFrames() {
+
+
+
+    log("widget.frameLocationName = ${widget.frameLocationName}");
+    // setState((){
+    //   imageNames = [];
+    //   framesDetails = [];
+    // });
+    log("framesDetails length = ${framesDetails.length}");
     loadFramesFromAssets();
   }
 
@@ -87,7 +104,7 @@ class _CategoryPageState extends State<CategoryPage> {
   }
 
   void loadFramesFromLocal() async {
-    String namePrefix = widget.frameLocationName+ "%2F";
+    String namePrefix = widget.frameLocationName + "%2F";
     // +
     // widget.bannerModel.frameLocationName;
     final String dir = (await getApplicationDocumentsDirectory()).path;
@@ -98,7 +115,9 @@ class _CategoryPageState extends State<CategoryPage> {
             path: element.path,
             category: 'local',
             frameName: element.path.split(Platform.pathSeparator).last));
-      };});
+      }
+      ;
+    });
 
     setState(() {});
 
@@ -119,6 +138,8 @@ class _CategoryPageState extends State<CategoryPage> {
     print("Frame location name = " + widget.frameLocationName);
     localFramesCount = framesDetails.length;
 
+
+
     final _firestorage = FirebaseStorage.instance;
     final refs =
         await _firestorage.ref('frames/${widget.frameLocationName}').list();
@@ -127,7 +148,7 @@ class _CategoryPageState extends State<CategoryPage> {
       String url = await ref.getDownloadURL();
       bool isFrameFoundLocally = false;
 
-      // log(url);
+      log(url);
 
       for (int i = 0; i < localFramesCount; i++) {
         if (url.contains(framesDetails[i].frameName)) {
@@ -144,6 +165,13 @@ class _CategoryPageState extends State<CategoryPage> {
       }
     }
   }
+
+  // clearVariables(){
+  //   setState(() {
+  //     widget.frameLocationName = '';
+  //     widget.categoryName = '';
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -178,10 +206,13 @@ class _CategoryPageState extends State<CategoryPage> {
                   widget.icon = iconPath;
                 },
                 changeFramesCategory: (frameLocationName) {
+                  log(frameLocationName);
+                  // clearVariables();
                   widget.frameLocationName = frameLocationName;
                   loadFrames();
                 },
                 changeFramesCategoryName: (framesCategoryName) {
+                  log(framesCategoryName);
                   widget.categoryName = framesCategoryName;
                 },
                 changeAppBarColor: (color) {
@@ -249,12 +280,21 @@ class _FramesGridState extends State<FramesGrid> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    widget.framesDetail = [];
+    log("init state calling");
     _createRewardedAd();
   }
 
   @override
-  Widget build(BuildContext context) {
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    log("didChangeDependencies calling");
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    log("widget.framesDetail.length = ${widget.framesDetail.length}");
     return Scrollbar(
       controller: scrollController,
       child: Padding(
@@ -294,502 +334,621 @@ class _FramesGridState extends State<FramesGrid> {
     );
   }
 
-  Widget singleFrame(
-      BuildContext context,ImgDetails frameDetail, imageNames, frameLocationName, index) {
+  Widget singleFrame(BuildContext context, ImgDetails frameDetail, imageNames,
+      frameLocationName, index) {
     if (widget.isDownloading[index] == null) {
       widget.isDownloading[index] = false;
     }
 
-    return
-      widget.isDownloading[index]!
-          ? Center(child: CircularProgressIndicator(color: Colors.blue)):
-      frameDetail.category != 'cloud'
-        ? InkWell(
-            highlightColor: Colors.lightBlueAccent.withOpacity(0.3),
-            splashColor: Colors.blue,
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => SingleFrame(
-                          imageNames: imageNames,
-                          frameLocationName: frameLocationName,
-                        frameLocationType: frameDetail.category,
-                        // frameDetails: frameDetail,
-                        // pathOfSeletedFrame: ,
-                        singleFrameDetails: frameDetail,
-                        framesDetailss: widget.framesDetail,
-                      ))).then((value) => {setState(() {})});
-            },
-            // child: Image.asset(
-            //     imageNames,
-            //     //scale: 1.0,
-            //   fit: BoxFit.fitHeight,
-            // ),
-
-            child: Container(
-                child: frameDetail.category == 'assets'
-                    ? Image(
-                        image: AssetImage(frameDetail.path),
-                        fit: BoxFit.cover,
-                      )
-                    : Image(
-                        image: FileImage(File(frameDetail.path)),
-                        fit: BoxFit.cover,
-                      )
-                // decoration: BoxDecoration(
-                //   image: DecorationImage(
-                //       image: AssetImage(imageNames),
-                //       // fit: BoxFit.cover
-                //       fit: BoxFit.cover),
+    return widget.isDownloading[index]!
+        ? Center(child: CircularProgressIndicator(color: Colors.blue))
+        : frameDetail.category != 'cloud'
+            ? InkWell(
+                highlightColor: Colors.lightBlueAccent.withOpacity(0.3),
+                // splashColor: Colors.blue,
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => SingleFrame(
+                                imageNames: imageNames,
+                                frameLocationName: frameLocationName,
+                                frameLocationType: frameDetail.category,
+                                // frameDetails: frameDetail,
+                                // pathOfSeletedFrame: ,
+                                singleFrameDetails: frameDetail,
+                                framesDetailss: widget.framesDetail,
+                              ))).then((value) => {setState(() {})});
+                },
+                // child: Image.asset(
+                //     imageNames,
+                //     //scale: 1.0,
+                //   fit: BoxFit.fitHeight,
                 // ),
-                ),
-          )
-        : Stack(children: [
-            InkWell(
-              highlightColor: Colors.lightBlueAccent.withOpacity(0.3),
-              splashColor: Colors.blue,
-              onTap: () {
-                downloadFrame(frameDetail.frameName, index, context);
-              },
-              child: CachedNetworkImage(
-                imageUrl: frameDetail.path,
-                progressIndicatorBuilder: (context, url, downloadProgress) =>
-                    Center(
-                        child: CircularProgressIndicator(
-                            color: Colors.orange,
-                            value: downloadProgress.progress)),
-                imageBuilder: (context, imageProvider) => Ink(
-                  decoration: BoxDecoration(
-                    // borderRadius: BorderRadius.only(
-                    //   bottomLeft: index % 2 == 1
-                    //       ? Radius.circular(0)
-                    //       : Radius.circular(30),
-                    //   bottomRight: index % 2 == 0
-                    //       ? Radius.circular(0)
-                    //       : Radius.circular(30),
-                    //   topLeft: Radius.circular(30),
-                    //   topRight: Radius.circular(30),
+
+                child: Container(
+                    child: frameDetail.category == 'assets'
+                        ? Image(
+                            image: AssetImage(frameDetail.path),
+                            fit: BoxFit.cover,
+                          )
+                        : Image(
+                            image: FileImage(File(frameDetail.path)),
+                            fit: BoxFit.cover,
+                          )
+                    // decoration: BoxDecoration(
+                    //   image: DecorationImage(
+                    //       image: AssetImage(imageNames),
+                    //       // fit: BoxFit.cover
+                    //       fit: BoxFit.cover),
                     // ),
-                    image: DecorationImage(
-                      // image: NetworkImage(frameDetail.path),
-                      image: imageProvider,
-                      fit: BoxFit.cover,
+                    ),
+              )
+            : Stack(children: [
+                InkWell(
+                  highlightColor: Colors.lightBlueAccent.withOpacity(0.3),
+                  // splashColor: Colors.blue,
+                  onTap: () {
+                    downloadFrame(frameDetail.frameName, index, context);
+                  },
+                  child: CachedNetworkImage(
+                    imageUrl: frameDetail.path,
+                    progressIndicatorBuilder:
+                        (context, url, downloadProgress) => Center(
+                            child: CircularProgressIndicator(
+                                color: Colors.orange,
+                                value: downloadProgress.progress)),
+                    imageBuilder: (context, imageProvider) => Ink(
+                      decoration: BoxDecoration(
+                        // borderRadius: BorderRadius.only(
+                        //   bottomLeft: index % 2 == 1
+                        //       ? Radius.circular(0)
+                        //       : Radius.circular(30),
+                        //   bottomRight: index % 2 == 0
+                        //       ? Radius.circular(0)
+                        //       : Radius.circular(30),
+                        //   topLeft: Radius.circular(30),
+                        //   topRight: Radius.circular(30),
+                        // ),
+                        image: DecorationImage(
+                          // image: NetworkImage(frameDetail.path),
+                          image: imageProvider,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
-            Positioned(
-              bottom: 10,
-              right: index % 2 == 1 ? null : 10,
-              left: index % 2 == 1 ? 10 : null,
-              child: IgnorePointer(
-                child: Container(
-                  padding: EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: index % 2 == 1
-                            ? Radius.circular(0)
-                            : Radius.circular(10),
-                        bottomRight: index % 2 == 0
-                            ? Radius.circular(0)
-                            : Radius.circular(10),
-                        topLeft: index % 2 == 1
-                            ? Radius.circular(10)
-                            : Radius.circular(0),
-                        topRight: index % 2 == 0
-                            ? Radius.circular(10)
-                            : Radius.circular(0),
-                      )),
-                  child: Icon(
-                    index % 2 == 0 ? Icons.download : Icons.lock,
-                    color: Colors.white,
+                Positioned(
+                  bottom: 10,
+                  right: index % 2 == 1 ? null : 10,
+                  left: index % 2 == 1 ? 10 : null,
+                  child: IgnorePointer(
+                    child: Container(
+                      padding: EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                          color: Colors.black,
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: index % 2 == 1
+                                ? Radius.circular(0)
+                                : Radius.circular(10),
+                            bottomRight: index % 2 == 0
+                                ? Radius.circular(0)
+                                : Radius.circular(10),
+                            topLeft: index % 2 == 1
+                                ? Radius.circular(10)
+                                : Radius.circular(0),
+                            topRight: index % 2 == 0
+                                ? Radius.circular(10)
+                                : Radius.circular(0),
+                          )),
+                      child: Icon(
+                        index % 2 == 0 ? Icons.download : Icons.lock,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ]);
+              ]);
   }
 
   Future downloadFrame(imageNames, int index, BuildContext context) async {
     if (index % 2 == 1) {
       // showWatchVideoDialogBox(context);
-      print("It is Locked Frame: $index");
-
-      // log(isRewardedAdLoaded.toString());
-      if (isRewardedAdLoaded == true) {
-        showModalBottomSheet(
-            context: context,
-            builder: (context) {
-              return StatefulBuilder(
-                  builder: ((BuildContext context, StateSetter setState) {
-                return Container(
-                  height: 310,
-                  child: Container(
-                    padding: EdgeInsets.only(top: 20),
-                    width: MediaQuery.of(context).size.width * 0.90,
-                    child: Column(
-                      children: [
-                        const Text(
-                          "Choose Your Option",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 24),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.blue,
-                                    borderRadius: BorderRadius.circular(10)),
-                                width: MediaQuery.of(context).size.width * .39,
-                                height:
-                                    MediaQuery.of(context).size.height * .21,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Container(
-                                      width: MediaQuery.of(context).size.width *
-                                          .85,
-                                      child: const Icon(
-                                        Icons.close,
-                                        color: Colors.white,
-                                        size: 110,
-                                      ),
-                                    ),
-                                    const Text(
-                                      "May be Later",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                          fontSize: 18),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            InkWell(
-                              onTap: () async {
-                                // _createRewardedAd();
-
-                                Navigator.pop(context);
-                                if(await _showRewardedAd()){
-                                // if(isRewardedAdLoaded){
-                                  if(await InternetConnectionChecker().hasConnection){
-                                    downloadSingleFrame(index, imageNames);
-                                  }else{
-                                    Fluttertoast.showToast(msg: "Check internet Connection",backgroundColor: Colors.red);
-                                  }
-
-                                }
-
-                                // else{
-                                //   log("Else");
-                                //   if(await InternetConnectionChecker().hasConnection){
-                                //     downloadSingleFrame(index, imageNames);
-                                //   }else{
-                                //     Fluttertoast.showToast(msg: "Check internet Connection",backgroundColor: Colors.red);
-                                //   }
-                                // }
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.blue,
-                                    borderRadius: BorderRadius.circular(10)),
-                                width: MediaQuery.of(context).size.width * .39,
-                                height:
-                                    MediaQuery.of(context).size.height * .21,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Container(
-                                      width: MediaQuery.of(context).size.width *
-                                          .85,
-                                      child: Icon(
-                                        isRewardedAdLoaded == true
-                                            ? Icons.noise_aware
-                                            : Icons.download,
-                                        color: Colors.white,
-                                        size: 110,
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    Flexible(
-                                      child: isRewardedAdLoaded == true
-                                          ? const Text(
-                                              "Watch Ad",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.white,
-                                                  fontSize: 18),
-                                            )
-                                          : const Text(
-                                              "Download Frame",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.white,
-                                                  fontSize: 18),
-                                            ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return Dialog(
+              child: Container(
+                height: 200,
+                child: Column(
+                  children: [
+                    AppBar(
+                      title: Text("Download"),
+                      backgroundColor: Colors.lightBlue,
+                      automaticallyImplyLeading: false,
                     ),
-                  ),
-                );
-              }));
-            });
-      } else {
-        showModalBottomSheet(
-            context: context,
-            builder: (context) {
-              return StatefulBuilder(builder: ((context, setState) {
-                return Container(
-                  height: 310,
-                  child: Container(
-                    padding: EdgeInsets.only(top: 20),
-                    width: MediaQuery.of(context).size.width * 0.90,
-                    child: Column(
-                      children: [
-                        const Text(
-                          "Choose Your Option",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 24),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.blue,
-                                    borderRadius: BorderRadius.circular(10)),
-                                width: MediaQuery.of(context).size.width * .39,
-                                height:
-                                    MediaQuery.of(context).size.height * .21,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Container(
-                                      width: MediaQuery.of(context).size.width *
-                                          .85,
-                                      child: const Icon(
-                                        Icons.close,
-                                        color: Colors.white,
-                                        size: 110,
-                                      ),
-                                    ),
-                                    const Text(
-                                      "May be Later",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                          fontSize: 18),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            InkWell(
-                              onTap: () async {
-                                //Navigator.pop(context);
-                                print("DOWNLOAD and AD");
-                                print("INDEX VALUE :: $index");
-
-                                if(await InternetConnectionChecker().hasConnection){
-                                  downloadSingleFrame(index, imageNames);
-                                }else{
-                                  Fluttertoast.showToast(msg: "Check internet Connection",backgroundColor: Colors.red);
-                                }
-                                // downloadSingleFrame(index, imageNames);
-
-                                Navigator.pop(context);
-                                // Navigator.pop(context);
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.blue,
-                                    borderRadius: BorderRadius.circular(10)),
-                                width: MediaQuery.of(context).size.width * .39,
-                                height:
-                                    MediaQuery.of(context).size.height * .21,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Container(
-                                      width: MediaQuery.of(context).size.width *
-                                          .85,
-                                      child: Icon(
-                                        Icons.download,
-                                        color: Colors.white,
-                                        size: 110,
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    const Flexible(
-                                      child: Text(
-                                        "Download Frame",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                            fontSize: 18),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                    Container(
+                      height: 15,
+                      color: Colors.lightBlue.withOpacity(0.6),
                     ),
-                  ),
-                );
-              }));
-            });
-      }
+                    Container(
+                      height: 15,
+                      color: Colors.lightBlue.withOpacity(0.4),
+                    ),
+                    SizedBox(height: 15),
+                    Center(
+                      child: Text(
+                        "Would you like to unlock frame ? ",
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    ),
+                    SizedBox(height: 15),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text("No")),
+                        ElevatedButton(
+                            onPressed: () async {
+                              Navigator.pop(context);
+                              // _createRewardedAd();
+                              if (await _showRewardedAd()) {
+
+                                downloadSingleFrame(index, imageNames);
+                              } else {
+                                // widget.changeFrame(await downloadSingleFrame(index,frameDetail.frameName));
+                              }
+                            },
+                            child: Text("Watch Ad")),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            );
+          });
+
+      // print("It is Locked Frame: $index");
+      //
+      // // log(isRewardedAdLoaded.toString());
+      // if (isRewardedAdLoaded == true) {
+      //   showModalBottomSheet(
+      //       context: context,
+      //       builder: (context) {
+      //         return StatefulBuilder(
+      //             builder: ((BuildContext context, StateSetter setState) {
+      //           return Container(
+      //             height: 310,
+      //             child: Container(
+      //               padding: EdgeInsets.only(top: 20),
+      //               width: MediaQuery.of(context).size.width * 0.90,
+      //               child: Column(
+      //                 children: [
+      //                   const Text(
+      //                     "Choose Your Option",
+      //                     style: TextStyle(
+      //                         fontWeight: FontWeight.bold, fontSize: 24),
+      //                   ),
+      //                   const SizedBox(
+      //                     height: 20,
+      //                   ),
+      //                   Row(
+      //                     crossAxisAlignment: CrossAxisAlignment.start,
+      //                     mainAxisAlignment: MainAxisAlignment.spaceAround,
+      //                     children: [
+      //                       InkWell(
+      //                         onTap: () {
+      //                           Navigator.pop(context);
+      //                         },
+      //                         child: Container(
+      //                           decoration: BoxDecoration(
+      //                               color: Colors.blue,
+      //                               borderRadius: BorderRadius.circular(10)),
+      //                           width: MediaQuery.of(context).size.width * .39,
+      //                           height:
+      //                               MediaQuery.of(context).size.height * .21,
+      //                           child: Column(
+      //                             mainAxisAlignment: MainAxisAlignment.center,
+      //                             children: <Widget>[
+      //                               Container(
+      //                                 width: MediaQuery.of(context).size.width *
+      //                                     .85,
+      //                                 child: const Icon(
+      //                                   Icons.close,
+      //                                   color: Colors.white,
+      //                                   size: 110,
+      //                                 ),
+      //                               ),
+      //                               const Text(
+      //                                 "May be Later",
+      //                                 style: TextStyle(
+      //                                     fontWeight: FontWeight.bold,
+      //                                     color: Colors.white,
+      //                                     fontSize: 18),
+      //                               ),
+      //                             ],
+      //                           ),
+      //                         ),
+      //                       ),
+      //                       InkWell(
+      //                         onTap: () async {
+      //                           // _createRewardedAd();
+      //
+      //                           Navigator.pop(context);
+      //                           if(await _showRewardedAd()){
+      //                           // if(isRewardedAdLoaded){
+      //                             if(await InternetConnectionChecker().hasConnection){
+      //                               downloadSingleFrame(index, imageNames);
+      //                             }else{
+      //                               Fluttertoast.showToast(msg: "Check internet Connection",backgroundColor: Colors.red);
+      //                             }
+      //
+      //                           }
+      //
+      //                           // else{
+      //                           //   log("Else");
+      //                           //   if(await InternetConnectionChecker().hasConnection){
+      //                           //     downloadSingleFrame(index, imageNames);
+      //                           //   }else{
+      //                           //     Fluttertoast.showToast(msg: "Check internet Connection",backgroundColor: Colors.red);
+      //                           //   }
+      //                           // }
+      //                         },
+      //                         child: Container(
+      //                           decoration: BoxDecoration(
+      //                               color: Colors.blue,
+      //                               borderRadius: BorderRadius.circular(10)),
+      //                           width: MediaQuery.of(context).size.width * .39,
+      //                           height:
+      //                               MediaQuery.of(context).size.height * .21,
+      //                           child: Column(
+      //                             mainAxisAlignment: MainAxisAlignment.center,
+      //                             children: <Widget>[
+      //                               Container(
+      //                                 width: MediaQuery.of(context).size.width *
+      //                                     .85,
+      //                                 child: Icon(
+      //                                   isRewardedAdLoaded == true
+      //                                       ? Icons.noise_aware
+      //                                       : Icons.download,
+      //                                   color: Colors.white,
+      //                                   size: 110,
+      //                                 ),
+      //                               ),
+      //                               const SizedBox(
+      //                                 height: 10,
+      //                               ),
+      //                               Flexible(
+      //                                 child: isRewardedAdLoaded == true
+      //                                     ? const Text(
+      //                                         "Watch Ad",
+      //                                         style: TextStyle(
+      //                                             fontWeight: FontWeight.bold,
+      //                                             color: Colors.white,
+      //                                             fontSize: 18),
+      //                                       )
+      //                                     : const Text(
+      //                                         "Download Frame",
+      //                                         style: TextStyle(
+      //                                             fontWeight: FontWeight.bold,
+      //                                             color: Colors.white,
+      //                                             fontSize: 18),
+      //                                       ),
+      //                               ),
+      //                             ],
+      //                           ),
+      //                         ),
+      //                       ),
+      //                     ],
+      //                   ),
+      //                 ],
+      //               ),
+      //             ),
+      //           );
+      //         }));
+      //       });
+      // } else {
+      //   showModalBottomSheet(
+      //       context: context,
+      //       builder: (context) {
+      //         return StatefulBuilder(builder: ((context, setState) {
+      //           return Container(
+      //             height: 310,
+      //             child: Container(
+      //               padding: EdgeInsets.only(top: 20),
+      //               width: MediaQuery.of(context).size.width * 0.90,
+      //               child: Column(
+      //                 children: [
+      //                   const Text(
+      //                     "Choose Your Option",
+      //                     style: TextStyle(
+      //                         fontWeight: FontWeight.bold, fontSize: 24),
+      //                   ),
+      //                   const SizedBox(
+      //                     height: 20,
+      //                   ),
+      //                   Row(
+      //                     crossAxisAlignment: CrossAxisAlignment.start,
+      //                     mainAxisAlignment: MainAxisAlignment.spaceAround,
+      //                     children: [
+      //                       InkWell(
+      //                         onTap: () {
+      //                           Navigator.pop(context);
+      //                         },
+      //                         child: Container(
+      //                           decoration: BoxDecoration(
+      //                               color: Colors.blue,
+      //                               borderRadius: BorderRadius.circular(10)),
+      //                           width: MediaQuery.of(context).size.width * .39,
+      //                           height:
+      //                               MediaQuery.of(context).size.height * .21,
+      //                           child: Column(
+      //                             mainAxisAlignment: MainAxisAlignment.center,
+      //                             children: <Widget>[
+      //                               Container(
+      //                                 width: MediaQuery.of(context).size.width *
+      //                                     .85,
+      //                                 child: const Icon(
+      //                                   Icons.close,
+      //                                   color: Colors.white,
+      //                                   size: 110,
+      //                                 ),
+      //                               ),
+      //                               const Text(
+      //                                 "May be Later",
+      //                                 style: TextStyle(
+      //                                     fontWeight: FontWeight.bold,
+      //                                     color: Colors.white,
+      //                                     fontSize: 18),
+      //                               ),
+      //                             ],
+      //                           ),
+      //                         ),
+      //                       ),
+      //                       InkWell(
+      //                         onTap: () async {
+      //                           //Navigator.pop(context);
+      //                           print("DOWNLOAD and AD");
+      //                           print("INDEX VALUE :: $index");
+      //
+      //                           if(await InternetConnectionChecker().hasConnection){
+      //                             downloadSingleFrame(index, imageNames);
+      //                           }else{
+      //                             Fluttertoast.showToast(msg: "Check internet Connection",backgroundColor: Colors.red);
+      //                           }
+      //                           // downloadSingleFrame(index, imageNames);
+      //
+      //                           Navigator.pop(context);
+      //                           // Navigator.pop(context);
+      //                         },
+      //                         child: Container(
+      //                           decoration: BoxDecoration(
+      //                               color: Colors.blue,
+      //                               borderRadius: BorderRadius.circular(10)),
+      //                           width: MediaQuery.of(context).size.width * .39,
+      //                           height:
+      //                               MediaQuery.of(context).size.height * .21,
+      //                           child: Column(
+      //                             mainAxisAlignment: MainAxisAlignment.center,
+      //                             children: <Widget>[
+      //                               Container(
+      //                                 width: MediaQuery.of(context).size.width *
+      //                                     .85,
+      //                                 child: Icon(
+      //                                   Icons.download,
+      //                                   color: Colors.white,
+      //                                   size: 110,
+      //                                 ),
+      //                               ),
+      //                               const SizedBox(
+      //                                 height: 10,
+      //                               ),
+      //                               const Flexible(
+      //                                 child: Text(
+      //                                   "Download Frame",
+      //                                   style: TextStyle(
+      //                                       fontWeight: FontWeight.bold,
+      //                                       color: Colors.white,
+      //                                       fontSize: 18),
+      //                                 ),
+      //                               ),
+      //                             ],
+      //                           ),
+      //                         ),
+      //                       ),
+      //                     ],
+      //                   ),
+      //                 ],
+      //               ),
+      //             ),
+      //           );
+      //         }));
+      //       });
+      // }
     } else {
       // downloadSingleFrame(index, imageNames);
 
-      showModalBottomSheet(
+      showDialog(
           context: context,
-          builder: (context) {
-            return StatefulBuilder(builder: ((context, setState) {
-              return Container(
-                height: 310,
-                child: Container(
-                  padding: EdgeInsets.only(top: 20),
-                  width: MediaQuery.of(context).size.width * 0.90,
-                  child: Column(
-                    children: [
-                      const Text(
-                        "Choose Your Option",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 24),
+          builder: (BuildContext context) {
+            return Dialog(
+              child: Container(
+                height: 200,
+                child: Column(
+                  children: [
+                    AppBar(
+                      title: Text("Download"),
+                      backgroundColor: Colors.lightBlue,
+                      automaticallyImplyLeading: false,
+                    ),
+                    Container(
+                      height: 15,
+                      color: Colors.lightBlue.withOpacity(0.6),
+                    ),
+                    Container(
+                      height: 15,
+                      color: Colors.lightBlue.withOpacity(0.4),
+                    ),
+                    SizedBox(height: 15),
+                    Center(
+                      child: Text(
+                        "Would you like to download frame ? ",
+                        style: TextStyle(fontSize: 18),
                       ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          InkWell(
-                            onTap: () {
+                    ),
+                    SizedBox(height: 15),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                            onPressed: () {
                               Navigator.pop(context);
                             },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.blue,
-                                  borderRadius: BorderRadius.circular(10)),
-                              width: MediaQuery.of(context).size.width * .39,
-                              height: MediaQuery.of(context).size.height * .21,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Container(
-                                    width:
-                                        MediaQuery.of(context).size.width * .85,
-                                    child: const Icon(
-                                      Icons.close,
-                                      color: Colors.white,
-                                      size: 110,
-                                    ),
-                                  ),
-                                  const Text(
-                                    "May be Later",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                        fontSize: 18),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          InkWell(
-                            onTap: () async {
-                              //Navigator.pop(context);
-                              print("DOWNLOAD ONLY");
-                              // print("INDEX VALUE :: $index");
+                            child: Text("No")),
+                        ElevatedButton(
+                            onPressed: () async {
+                              Navigator.pop(context);
 
-                              if(await InternetConnectionChecker().hasConnection){
+                              if (await InternetConnectionChecker()
+                                  .hasConnection) {
                                 downloadSingleFrame(index, imageNames);
-                              }else{
-                                Fluttertoast.showToast(msg: "Check internet Connection",backgroundColor: Colors.red);
+                              } else {
+                                Fluttertoast.showToast(
+                                    msg: "Check internet Connection",
+                                    backgroundColor: Colors.red);
                               }
 
 
-                              Navigator.pop(context);
-                              // Navigator.pop(context);
                             },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.blue,
-                                  borderRadius: BorderRadius.circular(10)),
-                              width: MediaQuery.of(context).size.width * .39,
-                              height: MediaQuery.of(context).size.height * .21,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Container(
-                                    width:
-                                        MediaQuery.of(context).size.width * .85,
-                                    child: Icon(
-                                      Icons.download,
-                                      color: Colors.white,
-                                      size: 110,
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  const Flexible(
-                                    child: Text(
-                                      "Download Frame",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                          fontSize: 18),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                            child: Text("Download")),
+                      ],
+                    )
+                  ],
                 ),
-              );
-            }));
+              ),
+            );
           });
+
+      // showModalBottomSheet(
+      //     context: context,
+      //     builder: (context) {
+      //       return StatefulBuilder(builder: ((context, setState) {
+      //         return Container(
+      //           height: 310,
+      //           child: Container(
+      //             padding: EdgeInsets.only(top: 20),
+      //             width: MediaQuery.of(context).size.width * 0.90,
+      //             child: Column(
+      //               children: [
+      //                 const Text(
+      //                   "Choose Your Option",
+      //                   style: TextStyle(
+      //                       fontWeight: FontWeight.bold, fontSize: 24),
+      //                 ),
+      //                 const SizedBox(
+      //                   height: 20,
+      //                 ),
+      //                 Row(
+      //                   crossAxisAlignment: CrossAxisAlignment.start,
+      //                   mainAxisAlignment: MainAxisAlignment.spaceAround,
+      //                   children: [
+      //                     InkWell(
+      //                       onTap: () {
+      //                         Navigator.pop(context);
+      //                       },
+      //                       child: Container(
+      //                         decoration: BoxDecoration(
+      //                             color: Colors.blue,
+      //                             borderRadius: BorderRadius.circular(10)),
+      //                         width: MediaQuery.of(context).size.width * .39,
+      //                         height: MediaQuery.of(context).size.height * .21,
+      //                         child: Column(
+      //                           mainAxisAlignment: MainAxisAlignment.center,
+      //                           children: <Widget>[
+      //                             Container(
+      //                               width:
+      //                                   MediaQuery.of(context).size.width * .85,
+      //                               child: const Icon(
+      //                                 Icons.close,
+      //                                 color: Colors.white,
+      //                                 size: 110,
+      //                               ),
+      //                             ),
+      //                             const Text(
+      //                               "May be Later",
+      //                               style: TextStyle(
+      //                                   fontWeight: FontWeight.bold,
+      //                                   color: Colors.white,
+      //                                   fontSize: 18),
+      //                             ),
+      //                           ],
+      //                         ),
+      //                       ),
+      //                     ),
+      //                     InkWell(
+      //                       onTap: () async {
+      //                         //Navigator.pop(context);
+      //                         print("DOWNLOAD ONLY");
+      //                         // print("INDEX VALUE :: $index");
+      //
+      //                         if (await InternetConnectionChecker()
+      //                             .hasConnection) {
+      //                           downloadSingleFrame(index, imageNames);
+      //                         } else {
+      //                           Fluttertoast.showToast(
+      //                               msg: "Check internet Connection",
+      //                               backgroundColor: Colors.red);
+      //                         }
+      //
+      //                         Navigator.pop(context);
+      //                         // Navigator.pop(context);
+      //                       },
+      //                       child: Container(
+      //                         decoration: BoxDecoration(
+      //                             color: Colors.blue,
+      //                             borderRadius: BorderRadius.circular(10)),
+      //                         width: MediaQuery.of(context).size.width * .39,
+      //                         height: MediaQuery.of(context).size.height * .21,
+      //                         child: Column(
+      //                           mainAxisAlignment: MainAxisAlignment.center,
+      //                           children: <Widget>[
+      //                             Container(
+      //                               width:
+      //                                   MediaQuery.of(context).size.width * .85,
+      //                               child: Icon(
+      //                                 Icons.download,
+      //                                 color: Colors.white,
+      //                                 size: 110,
+      //                               ),
+      //                             ),
+      //                             const SizedBox(
+      //                               height: 10,
+      //                             ),
+      //                             const Flexible(
+      //                               child: Text(
+      //                                 "Download Frame",
+      //                                 style: TextStyle(
+      //                                     fontWeight: FontWeight.bold,
+      //                                     color: Colors.white,
+      //                                     fontSize: 18),
+      //                               ),
+      //                             ),
+      //                           ],
+      //                         ),
+      //                       ),
+      //                     ),
+      //                   ],
+      //                 ),
+      //               ],
+      //             ),
+      //           ),
+      //         );
+      //       }));
+      //     });
     }
   }
 
@@ -823,9 +982,11 @@ class _FramesGridState extends State<FramesGrid> {
   }
 
   Future<void> _createRewardedAd() async {
+    log("Inside CreateRewarded ad");
     isRewardedAdLoaded = false;
     RewardedAd.loadWithAdManagerAdRequest(
-      adUnitId: AdMobService.rewardedAdUnitId,
+      // adUnitId: AdMobService.rewardedAdUnitId,
+      adUnitId: AdMobService.interstitialAdUnitId,
       adManagerRequest: const AdManagerAdRequest(),
       // adManagerAdRequest: AdManagerAdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
@@ -852,32 +1013,28 @@ class _FramesGridState extends State<FramesGrid> {
       onAdShowedFullScreenContent: (RewardedAd ad) {
         print('ad onAdShowedFullScreenContent.');
         // log("1");
-
       },
       onAdDismissedFullScreenContent: (RewardedAd ad) {
         print('$ad onAdDismissedFullScreenContent.');
         ad.dispose();
         _createRewardedAd();
         // log("2");
-
       },
       onAdFailedToShowFullScreenContent: (RewardedAd ad, AdError error) {
         print('$ad onAdFailedToShowFullScreenContent: $error');
         ad.dispose();
         // _createRewardedAd();
         // log("3");
-
       },
       onAdImpression: (RewardedAd ad) => print('$ad impression occurred.'),
     );
 
     // _rewardedAd!.setImmersiveMode(true);
-    rewardedAd!.show(onUserEarnedReward: (AdWithoutView ad, RewardItem reward){
+    rewardedAd!.show(onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
       print("Inside Show Functions");
       print('$ad with reward $RewardItem(${reward.amount}, ${reward.type})');
-
     });
 
-    return  await true;
+    return await true;
   }
 }

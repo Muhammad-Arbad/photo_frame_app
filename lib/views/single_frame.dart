@@ -56,6 +56,9 @@ class _SingleFrameState extends State<SingleFrame> {
       showStickerGrid = false,
       showTextField = false;
 
+  double? heightOgImge;
+  double? widthOgImge;
+
   Widget? textOnImage;
   List<Widget> moveableWidgetsOnImage = [];
 
@@ -67,9 +70,40 @@ class _SingleFrameState extends State<SingleFrame> {
 
     framesDetails  = widget.framesDetailss;
 
+    _calculateImageDimension().then((size) {
+      heightOgImge = size.height;
+      widthOgImge = size.width;
+
+      log(heightOgImge.toString());
+
+      final scaledHeight = heightOgImge! * (MediaQuery.of(context).size.width / widthOgImge!);
+      log(scaledHeight.toString());
+
+      setState(() {
+        heightOgImge = scaledHeight;
+        // isLoading = false;
+      });
+    });
+
     loadFonts();
     loadFrames();
     loadStickers();
+  }
+
+
+  Future<Size> _calculateImageDimension() {
+    Completer<Size> completer = Completer();
+    Image image = widget.singleFrameDetails.category == "assets"? Image.asset(widget.singleFrameDetails.path):Image.file(File(widget.singleFrameDetails.path));
+    image.image.resolve(ImageConfiguration()).addListener(
+      ImageStreamListener(
+            (ImageInfo image, bool synchronousCall) {
+          var myImage = image.image;
+          Size size = Size(myImage.width.toDouble(), myImage.height.toDouble());
+          completer.complete(size);
+        },
+      ),
+    );
+    return completer.future;
   }
 
   @override
@@ -81,117 +115,163 @@ class _SingleFrameState extends State<SingleFrame> {
           centerTitle: true,
           title: Text("Photo Frame"),
         ),
-        body: Padding(
-          padding: EdgeInsets.fromLTRB(
-              0, 20, 0, MediaQuery.of(context).size.height * 0.08),
-          child: SizedBox(
-            width: double.infinity,
-            height: MediaQuery.of(context).size.height * 80,
-            child:
-            RepaintBoundary(
-              key: _globalKey,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Positioned.fill(
-                    child: selectedImage == null
-                        ? Container()
-                        : MoveableWidget(
-                            onDragUpdate: (offset) {},
-                            onScaleStart: () {},
-                            onScaleEnd: (offset) {},
-                            item: Image.file(File(selectedImage!.path)),
-                          ),
-                  ),
-                  IgnorePointer(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        image:
-                        // widget.frameLocationType == "assets"?
-                        widget.singleFrameDetails.category == "assets"?
-                        DecorationImage(
-                          fit: BoxFit.cover,
-                          // image: AssetImage(widget.imageNames),
-                          image: AssetImage(widget.singleFrameDetails.path),
-                        ):DecorationImage(
-                          fit: BoxFit.cover,
-                          image: FileImage(File(widget.singleFrameDetails.path)),
-                        ),
-                      ),
-                    ),
-                  ),
-                  for (int i = 0; i < moveableWidgetsOnImage.length; i++)
-                    Positioned.fill(
-                      child: MoveableWidget(
-                        item: moveableWidgetsOnImage[i],
-                        onScaleEnd: (offset) {
-                          setState(() {
-                            showDeleteButton = false;
-                          });
-                          // print("From Previous End");
+        body: Stack(
 
-                          if (offset.dy >
-                              (MediaQuery.of(context).size.height - 120)) {
-                            setState(() {
-                              moveableWidgetsOnImage
-                                  .remove(moveableWidgetsOnImage[i]);
-                            });
-                          }
-                        },
-                        onScaleStart: () {
-                          setState(() {
-                            showDeleteButton = true;
-                          });
-                          // print("From Previous Start");
-                        },
-                        onDragUpdate: (offset) {
-                          if (offset.dy >
-                              (MediaQuery.of(context).size.height - 120)) {
-                            if (!isDeleteButtonActive) {
-                              setState(() {
-                                isDeleteButtonActive = true;
-                              });
-                            }
-                          } else {
-                            setState(() {
-                              isDeleteButtonActive = false;
-                            });
-                          }
-                        },
+          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+
+
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                  0, 10, 0, MediaQuery.of(context).size.height * 0.08),
+              child: SizedBox(
+
+                width: double.infinity,
+                height: heightOgImge,
+
+                // width: double.infinity,
+                // height: MediaQuery.of(context).size.height * 80,
+                child:
+                LayoutBuilder(
+                  builder: (BuildContext context, BoxConstraints constraints) {
+                    return RepaintBoundary(
+                      key: _globalKey,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Positioned.fill(
+                            child: selectedImage == null
+                                ? Container()
+                                : MoveableWidget(
+                              onDragUpdate: (offset) {},
+                              onScaleStart: () {},
+                              onScaleEnd: (offset) {},
+                              item: Image.file(File(selectedImage!.path)),
+                            ),
+                          ),
+                          IgnorePointer(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                image:
+                                // widget.frameLocationType == "assets"?
+                                widget.singleFrameDetails.category == "assets"?
+                                DecorationImage(
+                                  fit: BoxFit.cover,
+                                  // image: AssetImage(widget.imageNames),
+                                  image: AssetImage(widget.singleFrameDetails.path),
+                                ):DecorationImage(
+                                  fit: BoxFit.cover,
+                                  image: FileImage(File(widget.singleFrameDetails.path)),
+                                ),
+                              ),
+                            ),
+                          ),
+                          for (int i = 0; i < moveableWidgetsOnImage.length; i++)
+                            Positioned.fill(
+                              child: MoveableWidget(
+                                item: moveableWidgetsOnImage[i],
+                                onScaleEnd: (offset) {
+                                  setState(() {
+                                    showDeleteButton = false;
+                                  });
+                                  // print("From Previous End");
+
+                                  if (offset.dy >
+                                      // (MediaQuery.of(context).size.height - 120)) {
+                                      (constraints.maxHeight+80)) {
+                                    setState(() {
+                                      moveableWidgetsOnImage
+                                          .remove(moveableWidgetsOnImage[i]);
+                                    });
+                                  }
+                                },
+                                onScaleStart: () {
+                                  setState(() {
+                                    showDeleteButton = true;
+                                  });
+                                  // print("From Previous Start");
+                                },
+                                onDragUpdate: (offset) {
+                                  if (offset.dy >
+                                      // (MediaQuery.of(context).size.height - 120)) {
+                                      (constraints.maxHeight+80)) {
+                                    if (!isDeleteButtonActive) {
+                                      setState(() {
+                                        isDeleteButtonActive = true;
+                                      });
+                                    }
+                                  } else {
+                                    setState(() {
+                                      isDeleteButtonActive = false;
+                                    });
+                                  }
+                                },
+                              ),
+                            ),
+                          showTextField
+                              ? Container(
+                            alignment: Alignment.bottomCenter,
+                            child: addTextToScreen(),
+                          )
+                              : IgnorePointer(),
+                          // showFrameGrid
+                          //     ? Container(
+                          //   alignment: Alignment.bottomCenter,
+                          //   child: selectFramesForScreen(
+                          //       widget.frameLocationName, frames,framesDetails),
+                          // )
+                          //     : IgnorePointer(),
+                          // showStickerGrid
+                          //     ? Container(
+                          //   alignment: Alignment.bottomCenter,
+                          //   child: addStickerToScreen(),
+                          // )
+                          //     : IgnorePointer(),
+                          if (showDeleteButton)
+                            Align(
+                              alignment: Alignment.bottomCenter,
+                              child: Icon(
+                                Icons.delete,
+                                color: isDeleteButtonActive ? Colors.red : Colors.black,
+                                size: isDeleteButtonActive ? 40 : 30,
+                              ),
+                            )
+                        ],
                       ),
-                    ),
-                  showTextField
-                      ? Container(
-                          alignment: Alignment.bottomCenter,
-                          child: addTextToScreen(),
-                        )
-                      : IgnorePointer(),
-                  showFrameGrid
-                      ? Container(
-                          alignment: Alignment.bottomCenter,
-                          child: selectFramesForScreen(
-                              widget.frameLocationName, frames,framesDetails),
-                        )
-                      : IgnorePointer(),
-                  showStickerGrid
-                      ? Container(
-                          alignment: Alignment.bottomCenter,
-                          child: addStickerToScreen(),
-                        )
-                      : IgnorePointer(),
-                  if (showDeleteButton)
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Icon(
-                        Icons.delete,
-                        color: isDeleteButtonActive ? Colors.red : Colors.black,
-                        size: isDeleteButtonActive ? 60 : 50,
-                      ),
-                    )
-                ],
+                    );
+                  }
+                ),
               ),
             ),
-          ),
+
+            Stack(children: [
+              showStickerGrid
+                  ? Container(
+                padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.08),
+                alignment: Alignment.bottomCenter,
+                child: addStickerToScreen(),
+              )
+                  : IgnorePointer(),
+
+              // showTextField
+              //     ? Container(
+              //   padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.08),
+              //   alignment: Alignment.bottomCenter,
+              //   child: addTextToScreen(),
+              // )
+              //     : IgnorePointer(),
+              showFrameGrid
+                  ? Container(
+                padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.08),
+                alignment: Alignment.bottomCenter,
+                child: selectFramesForScreen(
+                    widget.frameLocationName, frames,framesDetails),
+              )
+                  : IgnorePointer(),
+            ],),
+
+
+          ],
         ),
         bottomSheet: Container(
           height: MediaQuery.of(context).size.height * 0.08,
@@ -403,7 +483,8 @@ class _SingleFrameState extends State<SingleFrame> {
           topLeft: Radius.circular(30),
         ),
       ),
-      height: MediaQuery.of(context).size.height / 2,
+      // height: MediaQuery.of(context).size.height / 2,
+      height: MediaQuery.of(context).size.height,
       child: TextEditor(
         fonts: [
           '1',
@@ -587,25 +668,94 @@ class _FramesGridState extends State<FramesGrid> {
         if (frameDetail.category == 'cloud'){
           if(index % 2 ==1){
 
-            showDialog(context: context, builder: (BuildContext context){
-              return AlertDialog(
-                title: Text("Would you like to unlock frame ? "),
-                actions: [
-                  TextButton(onPressed: (){Navigator.pop(context);}, child:Text("No")),
-                  TextButton(onPressed: ()async{
-                    Navigator.pop(context);
-                    if(await _showRewardedAd()){
-
-                    widget.changeFrame(await downloadSingleFrame(index,frameDetail.frameName));
 
 
-                    }else{
-                      widget.changeFrame(await downloadSingleFrame(index,frameDetail.frameName));
-                    }
-                  }, child:Text("Watch Ad")),
-                ],
-              );
-            });
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return Dialog(
+                    child: Container(
+                      height: 200,
+                      child: Column(
+                        children: [
+                          AppBar(
+                            title: Text("Download"),
+                            backgroundColor: Colors.lightBlue,
+                            automaticallyImplyLeading: false,
+                          ),
+                          Container(
+                            height: 15,
+                            color: Colors.lightBlue.withOpacity(0.6),
+                          ),
+                          Container(
+                            height: 15,
+                            color: Colors.lightBlue.withOpacity(0.4),
+                          ),
+                          SizedBox(height: 15),
+                          Center(
+                            child: Text(
+                              "Would you like to unlock frame ?",
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ),
+                          SizedBox(height: 15),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text("No")),
+                              ElevatedButton(
+                                  onPressed: () async {
+                                    Navigator.pop(context);
+                                    if(await _showRewardedAd()){
+
+                                      widget.changeFrame(await downloadSingleFrame(index,frameDetail.frameName));
+
+                                    }else{
+                                      widget.changeFrame(await downloadSingleFrame(index,frameDetail.frameName));
+                                    }
+                                  },
+                                  child: Text("Watch Ad")),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  );
+                });
+
+
+
+
+
+
+
+
+
+
+
+            // showDialog(context: context, builder: (BuildContext context){
+            //   return AlertDialog(
+            //     title: Text("Would you like to unlock frame ? "),
+            //     actions: [
+            //       TextButton(onPressed: (){Navigator.pop(context);}, child:Text("No")),
+            //       TextButton(onPressed: ()async{
+            //         Navigator.pop(context);
+            //         if(await _showRewardedAd()){
+            //
+            //         widget.changeFrame(await downloadSingleFrame(index,frameDetail.frameName));
+            //
+            //
+            //         }else{
+            //           widget.changeFrame(await downloadSingleFrame(index,frameDetail.frameName));
+            //         }
+            //       }, child:Text("Watch Ad")),
+            //     ],
+            //   );
+            // });
 
 
 
