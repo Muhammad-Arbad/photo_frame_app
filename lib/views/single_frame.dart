@@ -871,11 +871,34 @@ class _FramesGridState extends State<FramesGrid> {
     // });
   }
 
-  Future<void> _createRewardedAd() async {
-    isRewardedAdLoaded = false;
+  // Future<void> _createRewardedAd() async {
+  //   isRewardedAdLoaded = false;
+  //
+  //   RewardedAd.loadWithAdManagerAdRequest(
+  //     // adUnitId: AdMobService.rewardedAdUnitId,
+  //     adUnitId: AdMobService.interstitialAdUnitId,
+  //     adManagerRequest: const AdManagerAdRequest(),
+  //     // adManagerAdRequest: AdManagerAdRequest(),
+  //     rewardedAdLoadCallback: RewardedAdLoadCallback(
+  //       onAdLoaded: (RewardedAd ad) {
+  //         isRewardedAdLoaded = true;
+  //         print('$ad loaded.');
+  //         rewardedAd = ad;
+  //
+  //       },
+  //       onAdFailedToLoad: (LoadAdError error) {
+  //         print('RewardedAd failed to load: $error');
+  //       },
+  //     ),
+  //   );
+  // }
 
+  Future<void> _createRewardedAd() async {
+    log("Inside CreateRewarded ad");
+    isRewardedAdLoaded = false;
     RewardedAd.loadWithAdManagerAdRequest(
-      adUnitId: AdMobService.rewardedAdUnitId,
+      // adUnitId: AdMobService.rewardedAdUnitId,
+      adUnitId: AdMobService.interstitialAdUnitId,
       adManagerRequest: const AdManagerAdRequest(),
       // adManagerAdRequest: AdManagerAdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
@@ -883,7 +906,8 @@ class _FramesGridState extends State<FramesGrid> {
           isRewardedAdLoaded = true;
           print('$ad loaded.');
           rewardedAd = ad;
-
+          // _numRewardedLoadAttempts = 0;
+          // _showRewardedAd();
         },
         onAdFailedToLoad: (LoadAdError error) {
           print('RewardedAd failed to load: $error');

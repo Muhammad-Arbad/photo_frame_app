@@ -38,6 +38,7 @@ class _CategoryPageState extends State<CategoryPage> {
   List<String> imageNames = [];
   List<ImgDetails> framesDetails = [];
   int localFramesCount = 0;
+  final _firestorage = FirebaseStorage.instance;
 
   @override
   void initState() {
@@ -62,17 +63,21 @@ class _CategoryPageState extends State<CategoryPage> {
         request: const AdRequest())
       ..load();
   }
-
+  //
+  // Future<void> reloadStorage() async {
+  //   final FirebaseStorage storage = FirebaseStorage.instance;
+  //   await storage.setMaxDownloadRetryTime(Duration.zero);
+  //   await storage.setMaxUploadRetryTime(Duration.zero);
+  //   await storage.ref().child('/').listAll();
+  // }
 
   void loadFrames() {
 
 
-
+    // log("loadFrames calling");
+    // _firestorage.ref().child('/').listAll();
     log("widget.frameLocationName = ${widget.frameLocationName}");
-    // setState((){
-    //   imageNames = [];
-    //   framesDetails = [];
-    // });
+
     log("framesDetails length = ${framesDetails.length}");
     loadFramesFromAssets();
   }
@@ -84,7 +89,7 @@ class _CategoryPageState extends State<CategoryPage> {
     // log(json.decode(manifestContent).toString());
     final imagePaths = manifestMap.keys
         .where((String key) => key.contains(
-            'assets/categories/frames/' + widget.frameLocationName + '/'))
+            'assets/categories/frames/' + widget.frameLocationName + '/' ) && (key.endsWith('.png') || key.endsWith('.PNG')))
         .toList();
 
     // imageNames = imagePaths;
@@ -140,11 +145,17 @@ class _CategoryPageState extends State<CategoryPage> {
 
 
 
-    final _firestorage = FirebaseStorage.instance;
+    // final _firestorage = FirebaseStorage.instance;
     final refs =
         await _firestorage.ref('frames/${widget.frameLocationName}').list();
 
     for (Reference ref in refs.items) {
+
+
+
+      log("Inside For Loop name = ${widget.frameLocationName}");
+
+
       String url = await ref.getDownloadURL();
       bool isFrameFoundLocally = false;
 
@@ -158,20 +169,20 @@ class _CategoryPageState extends State<CategoryPage> {
       }
 
       if (isFrameFoundLocally == false) {
-        framesDetails
-            .add(ImgDetails(path: url, category: 'cloud', frameName: ref.name));
+        
+        if(url.contains(widget.frameLocationName)){
+          framesDetails
+              .add(ImgDetails(path: url, category: 'cloud', frameName: ref.name));   
+        }
+        // framesDetails
+        //     .add(ImgDetails(path: url, category: 'cloud', frameName: ref.name));
         // log("Frames Found");
         setState(() {});
       }
     }
   }
 
-  // clearVariables(){
-  //   setState(() {
-  //     widget.frameLocationName = '';
-  //     widget.categoryName = '';
-  //   });
-  // }
+
 
   @override
   Widget build(BuildContext context) {
@@ -206,17 +217,30 @@ class _CategoryPageState extends State<CategoryPage> {
                   widget.icon = iconPath;
                 },
                 changeFramesCategory: (frameLocationName) {
-                  log(frameLocationName);
-                  // clearVariables();
-                  widget.frameLocationName = frameLocationName;
-                  loadFrames();
+
+                  if(widget.frameLocationName != frameLocationName){
+                    log(frameLocationName);
+                    // clearVariables();
+                    widget.frameLocationName = frameLocationName;
+                    loadFrames();
+                  }
+
                 },
                 changeFramesCategoryName: (framesCategoryName) {
-                  log(framesCategoryName);
-                  widget.categoryName = framesCategoryName;
+
+                  if(widget.categoryName != framesCategoryName){
+                    log(framesCategoryName);
+                    widget.categoryName = framesCategoryName;
+                  }
+
+
                 },
                 changeAppBarColor: (color) {
-                  widget.bgColor = color;
+
+                  if(widget.bgColor != color){
+                    widget.bgColor = color;
+                  }
+
                 },
               ),
             ),
