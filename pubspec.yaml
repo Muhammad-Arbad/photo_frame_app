@@ -58,6 +58,8 @@ dependencies:
   flutter_local_notifications: ^13.0.0
   app_settings: ^4.2.0
   firebase_analytics: ^10.2.0
+  permission_handler: ^10.2.0
+  shared_preferences: ^2.1.0
 #  image_gallery_saver: ^1.7.1
 #    flutter_storage_path: ^1.0.4
 
