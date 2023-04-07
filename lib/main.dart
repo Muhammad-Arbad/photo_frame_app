@@ -30,8 +30,8 @@ void main() {
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async{
   await Firebase.initializeApp();
-  print("inside _firebaseMessagingBackgroundHandler");
-  print(message.notification!.title.toString());
+  // print("inside _firebaseMessagingBackgroundHandler");
+  // print(message.notification!.title.toString());
 
 }
 
@@ -43,7 +43,7 @@ void initializeFirabseStorage() async {
   notificationServices.requestNotificationPermission();
 
   final fcmToekn = await FirebaseMessaging.instance.getToken();
-  print(fcmToekn);
+  // print(fcmToekn);
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   // WidgetsFlutterBinding.ensureInitialized();
 
@@ -150,14 +150,14 @@ class NotificationServices{
     );
 
     if(settings.authorizationStatus == AuthorizationStatus.authorized){
-      print("User Granted Permissions");
+      // print("User Granted Permissions");
     }
     else if(settings.authorizationStatus == AuthorizationStatus.provisional){
-    print("User provesional Permissions");
+    // print("User provesional Permissions");
     }
     else{
       AppSettings.openNotificationSettings();
-      print("Permission denied");
+      // print("Permission denied");
     }
   }
 
@@ -165,8 +165,8 @@ class NotificationServices{
     initLocaleNotifications();
     FirebaseMessaging.onMessage.listen((message) {
 
-      print(message.notification!.title.toString());
-      print(message.notification!.body.toString());
+      // print(message.notification!.title.toString());
+      // print(message.notification!.body.toString());
 
       showNotification(message);
     });
@@ -220,7 +220,7 @@ class NotificationServices{
 
   Future<String> getDeviceToken() async{
     final fcmToekn = await FirebaseMessaging.instance.getToken();
-    print(fcmToekn);
+    // print(fcmToekn);
     return fcmToekn!;
   }
 

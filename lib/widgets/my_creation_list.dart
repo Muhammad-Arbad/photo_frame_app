@@ -80,7 +80,7 @@ class MyCreationGrid extends StatelessWidget {
             interstitialAd!.show();
             interstitialAd =null;
           }else{
-            print("Ad is null");
+            // print("Ad is null");
             // Navigator.push(context, MaterialPageRoute(builder: (context)=>MyStuff(
             //     frameLocationName: categoriesList.frameLocationName,
             //     categoryName: categoriesList.name,

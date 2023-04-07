@@ -506,10 +506,10 @@ class _SingleFrameState extends State<SingleFrame> {
         widget.frameLocationName +
         'mystuff' +
         '${DateTime.now()}.png';
-    print(dir);
+    // print(dir);
     File capturedFile = File(fullPath);
     await capturedFile.writeAsBytes(pngBytes);
-    print("Captured Path" + capturedFile.path);
+    // print("Captured Path" + capturedFile.path);
 
     await GallerySaver.saveImage(capturedFile.path,
             albumName: widget.frameLocationName, toDcim: true)
@@ -604,11 +604,39 @@ class _SingleFrameState extends State<SingleFrame> {
           frameLocationName: frameLocationName,
           frames: frames,
           changeFrame: (frameDetail) {
-            setState(() {
-              // widget.imageNames = frameName;
+            widget.singleFrameDetails = frameDetail;
+            _calculateImageDimension().then((size) {
 
-              widget.singleFrameDetails = frameDetail;
+              log("_calculateImageDimension calling");
+              log(size.height.toString());
+              log(size.width.toString());
+              heightOgImge = size.height;
+              widthOgImge = size.width;
+
+              log(heightOgImge.toString());
+
+              final scaledHeight =
+                  heightOgImge! * (MediaQuery.of(context).size.width / widthOgImge!);
+              log(scaledHeight.toString());
+
+              log("setStste calling");
+
+              heightOgImge = scaledHeight;
+
+
+              setState(() {
+
+              });
+
             });
+            // setState(() {
+            //
+            //   log("setStste calling");
+            //
+            //   heightOgImge = scaledHeight;
+            //
+            //   widget.singleFrameDetails = frameDetail;
+            // });
           },
           frameDetails: frameDetails),
     );
@@ -874,7 +902,7 @@ class _FramesGridState extends State<FramesGrid> {
       isDownloading[index] = true;
     });
 
-    print("Frame Downloading Function");
+    // print("Frame Downloading Function");
     log(index.toString());
     log(widget.frameDetails.length.toString());
     String namePrefix = widget.frameLocationName + "%2F";
@@ -951,13 +979,13 @@ class _FramesGridState extends State<FramesGrid> {
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (RewardedAd ad) {
           isRewardedAdLoaded = true;
-          print('$ad loaded.');
+          // print('$ad loaded.');
           rewardedAd = ad;
           // _numRewardedLoadAttempts = 0;
           // _showRewardedAd();
         },
         onAdFailedToLoad: (LoadAdError error) {
-          print('RewardedAd failed to load: $error');
+          // print('RewardedAd failed to load: $error');
         },
       ),
     );
@@ -965,22 +993,22 @@ class _FramesGridState extends State<FramesGrid> {
 
   Future<bool> _showRewardedAd() async {
     if (rewardedAd == null) {
-      print('Warning: attempt to show rewarded before loaded.');
+      // print('Warning: attempt to show rewarded before loaded.');
       return await false;
     }
     rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
       onAdShowedFullScreenContent: (RewardedAd ad) {
-        print('ad onAdShowedFullScreenContent.');
+        // print('ad onAdShowedFullScreenContent.');
         // log("1");
       },
       onAdDismissedFullScreenContent: (RewardedAd ad) {
-        print('$ad onAdDismissedFullScreenContent.');
+        // print('$ad onAdDismissedFullScreenContent.');
         ad.dispose();
         _createRewardedAd();
         // log("2");
       },
       onAdFailedToShowFullScreenContent: (RewardedAd ad, AdError error) {
-        print('$ad onAdFailedToShowFullScreenContent: $error');
+        // print('$ad onAdFailedToShowFullScreenContent: $error');
         ad.dispose();
         // _createRewardedAd();
         // log("3");
@@ -990,8 +1018,8 @@ class _FramesGridState extends State<FramesGrid> {
 
     // _rewardedAd!.setImmersiveMode(true);
     rewardedAd!.show(onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
-      print("Inside Show Functions");
-      print('$ad with reward $RewardItem(${reward.amount}, ${reward.type})');
+      // print("Inside Show Functions");
+      // print('$ad with reward $RewardItem(${reward.amount}, ${reward.type})');
     });
 
     return await true;

@@ -55,28 +55,28 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void showAdIfAvailable() {
     if (!isAdAvailable) {
-      print('Tried to show ad before available.');
+      // print('Tried to show ad before available.');
       loadAdOpenApp();
       return;
     }
     if (_isShowingAd) {
-      print('Tried to show ad while already showing an ad.');
+      // print('Tried to show ad while already showing an ad.');
       return;
     }
     // Set the fullScreenContentCallback and show the ad.
     _appOpenAd!.fullScreenContentCallback = FullScreenContentCallback(
       onAdShowedFullScreenContent: (ad) {
         _isShowingAd = true;
-        print('$ad onAdShowedFullScreenContent');
+        // print('$ad onAdShowedFullScreenContent');
       },
       onAdFailedToShowFullScreenContent: (ad, error) {
-        print('$ad onAdFailedToShowFullScreenContent: $error');
+        // print('$ad onAdFailedToShowFullScreenContent: $error');
         _isShowingAd = false;
         ad.dispose();
         _appOpenAd = null;
       },
       onAdDismissedFullScreenContent: (ad) {
-        print('$ad onAdDismissedFullScreenContent');
+        // print('$ad onAdDismissedFullScreenContent');
         _isShowingAd = false;
         ad.dispose();
         _appOpenAd = null;
@@ -95,7 +95,7 @@ class _SplashScreenState extends State<SplashScreen> {
           _appOpenAd = ad;
         },
         onAdFailedToLoad: (error) {
-          print('AppOpenAd failed to load: $error');
+          // print('AppOpenAd failed to load: $error');
           // Handle the error.
         },
       ),

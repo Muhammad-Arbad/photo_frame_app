@@ -140,7 +140,7 @@ class _CategoryPageState extends State<CategoryPage> {
 
   void loadFramesFromCloud() async {
     // print("Cloud reference name = " +widget.bannerModel.cloudReferenceName);
-    print("Frame location name = " + widget.frameLocationName);
+    // print("Frame location name = " + widget.frameLocationName);
     localFramesCount = framesDetails.length;
 
 
@@ -977,7 +977,7 @@ class _FramesGridState extends State<FramesGrid> {
   }
 
   void downloadSingleFrame(int index, dynamic frameName) async {
-    print("INDEX VALUE :: $index");
+    // print("INDEX VALUE :: $index");
     String namePrefix = widget.frameLocationName + "%2F";
     // +
     // widget.framesDetail[index].frameName;
@@ -1016,13 +1016,13 @@ class _FramesGridState extends State<FramesGrid> {
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (RewardedAd ad) {
           isRewardedAdLoaded = true;
-          print('$ad loaded.');
+          // print('$ad loaded.');
           rewardedAd = ad;
           // _numRewardedLoadAttempts = 0;
           // _showRewardedAd();
         },
         onAdFailedToLoad: (LoadAdError error) {
-          print('RewardedAd failed to load: $error');
+          // print('RewardedAd failed to load: $error');
         },
       ),
     );
@@ -1030,33 +1030,35 @@ class _FramesGridState extends State<FramesGrid> {
 
   Future<bool> _showRewardedAd() async {
     if (rewardedAd == null) {
-      print('Warning: attempt to show rewarded before loaded.');
+      // print('Warning: attempt to show rewarded before loaded.');
       return await false;
     }
     rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
       onAdShowedFullScreenContent: (RewardedAd ad) {
-        print('ad onAdShowedFullScreenContent.');
+        // print('ad onAdShowedFullScreenContent.');
         // log("1");
       },
       onAdDismissedFullScreenContent: (RewardedAd ad) {
-        print('$ad onAdDismissedFullScreenContent.');
+        // print('$ad onAdDismissedFullScreenContent.');
         ad.dispose();
         _createRewardedAd();
         // log("2");
       },
       onAdFailedToShowFullScreenContent: (RewardedAd ad, AdError error) {
-        print('$ad onAdFailedToShowFullScreenContent: $error');
+        // print('$ad onAdFailedToShowFullScreenContent: $error');
         ad.dispose();
         // _createRewardedAd();
         // log("3");
       },
-      onAdImpression: (RewardedAd ad) => print('$ad impression occurred.'),
+      onAdImpression: (RewardedAd ad) => {
+        // print('$ad impression occurred.');
+      }
     );
 
     // _rewardedAd!.setImmersiveMode(true);
     rewardedAd!.show(onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
-      print("Inside Show Functions");
-      print('$ad with reward $RewardItem(${reward.amount}, ${reward.type})');
+      // print("Inside Show Functions");
+      // print('$ad with reward $RewardItem(${reward.amount}, ${reward.type})');
     });
 
     return await true;
