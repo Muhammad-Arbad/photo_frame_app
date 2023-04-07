@@ -3,6 +3,9 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
+    <!-- for android 13 -->
+    <!-- <uses-permission android:name="READ_MEDIA_IMAGES" android:minSdkVersion="33"/> -->
+
    <application
         android:label="Photo Frame"
         android:name="${applicationName}"
